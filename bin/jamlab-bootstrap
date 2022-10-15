@@ -1,0 +1,13 @@
+!#/bin/bash
+# Purpose: Set up first hypervisor for running ansible for the first time 
+
+# Remove Proxmox Enterprise sources
+rm /etc/apt/sources.list.d/pve-enterprise.list
+
+# Upgrade system and install jamlab-ansible dependencies
+apt update && apt upgrade -y 
+apt install vim git ansible jq -y 
+
+# Execute jamlab-ansible
+DIR=$(dirname "$0")
+$DIR/jamlab-ansible
