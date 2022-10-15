@@ -2,6 +2,10 @@
 
 Ansible playbooks for configuration management in pull mode.
 
+## Bootstrap
+
+To run jamlab-ansible for the first time (i.e. reinstalling or setting up hypervisor for the first time) use `bin/jamlab-bootstrap` which installs dependencies and runs `bin/jamlab-ansible` for the first time to set up the system.
+
 ## Host inventory
 
 Each host should belong to **ONE AND ONLY ONE** group.
@@ -44,15 +48,15 @@ Combine dictionaries in role tasks `rrr/tasks/main.yml`:
 ```yml
 - name: Combine role and group vars
   set_fact:
-    packages: "{{ packages + group_packages }}"
-  when: group_packages is defined
+    packages: "{{ packages + group_exampledict }}"
+  when: group_exampledict is defined
 ```
 
 ```yml
 - name: Combine host and group vars
   set_fact:
-    packages: "{{ packages + host_packages }}"
-  when: host_packages is defined
+    packages: "{{ packages + host_exampledict }}"
+  when: host_exampledict is defined
 ```
 
 ## Playbook structure
