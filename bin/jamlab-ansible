@@ -1,0 +1,105 @@
+#!/bin/bash
+#
+# Name:     ansible-pull
+# Purpose:  Run ansible-playbook in pull mode to configure host
+
+# Color codes
+COLOR_RED_BOLD='\e[31;1m'
+COLOR_YELLOW_BOLD='\e[33;1m'
+COLOR_GREEN_BOLD='\e[32;1m'
+COLOR_RESET='\e[00m'
+
+# Check user
+if [[ $(id -un) != root ]]
+then
+    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Only root may run this script" >&2
+    exit 1
+fi
+
+# Check OS
+if [[ -e /etc/os-release ]]
+then
+    source /etc/os-release
+    [[ $ID == debian ]] && os=debian
+else
+    echo -e "[  ${COLOR_RED_BOLD}FATAL${COLOR_RESET}  ] Unable to read /etc/os-release" >&2
+    exit 1
+fi
+if [[ -z $os ]]
+then
+    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] $0 may only run on debian" >&2
+    exit 1
+fi
+
+# Check that there is no other running instance of this script
+script_name=$(basename $0)
+if [[ $(pidof -x $script_name) != $$ ]]
+then
+    echo -e "[${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET}] $script_name is already running" >&2
+    exit 2
+fi
+
+# Manage arguments
+host_name=$(hostname -s)
+while [[ -n $1 ]]
+do
+    case $1 in
+    (-b)
+        shift
+        branch=$1
+    ;;
+    (-r)
+        refresh=true
+    ;;
+    (*)
+        ansible_arg_list="$ansible_arg_list $1"
+    ;;
+    esac
+    shift
+done
+branch=${branch:=main}
+
+# Clone if not exist yet
+ANSIBLE_REPO_URL=https://github.com/JamFox/jamlab-ansible.git
+ANSIBLE_MAIN_DIR=/opt/jamlab-ansible
+if [ ! -d $ANSIBLE_MAIN_DIR ]
+then
+    git clone $ANSIBLE_REPO_URL $ANSIBLE_MAIN_DIR
+    if [ $? -ne 0 ]; then
+        echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to clone $ANSIBLE_REPO_URL" >&2
+        exit 1
+    fi
+fi
+
+# Pull latest if argument set
+if [[ $refresh == true ]]
+then
+    cd $ANSIBLE_MAIN_DIR
+
+    git checkout $branch
+    if [ $? -ne 0 ]; then
+        echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to checkout branch $branch at $ANSIBLE_REPO_URL" >&2
+        exit 1
+    fi
+    git pull
+    if [ $? -ne 0 ]; then
+        echo -e "[${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET}] Unable to checkout branch $branch at $ANSIBLE_REPO_URL"
+        echo -e "[${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET}] Continuing without pulling latest..."
+    fi
+fi
+
+# Determine execution directory
+exec_path=$(dirname $0)
+if [[ -e $exec_path/../ansible.cfg ]]
+then
+    ansible_path=$exec_path/..
+elif [[ -e $ANSIBLE_MAIN_DIR/ansible.cfg ]]
+then
+    ansible_path=$ANSIBLE_MAIN_DIR
+else
+    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to find ansible.cfg from current dir or $ANSIBLE_MAIN_DIR" >&2
+    exit 1
+fi
+ansible_path=$(readlink -f $ansible_path)
+
+echo "END"
