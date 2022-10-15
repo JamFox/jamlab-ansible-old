@@ -6,3 +6,11 @@
       tags: [ init ]
   when: not disabled_roles.init | default(false)
   tags: always
+
+- name: Include base_pkg role
+  ansible.builtin.include_role:
+    name: base_pkg
+    apply:
+      tags: [ base_pkg ]
+  when: not (disabled_roles.base_pkg | default(false))
+  tags: always

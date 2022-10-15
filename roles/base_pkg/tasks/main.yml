@@ -1,0 +1,25 @@
+- name: Update apt cache and upgrade packages
+  ansible.builtin.apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+
+- name: Install snapd
+  ansible.builtin.apt:
+    name:
+      - snapd
+    state: latest
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name:
+      - jq
+      - curl
+      - wget
+      - vim 
+      - git 
+      - ansible 
+      - keychain 
+      - tmux 
+      - python3
+    state: latest
