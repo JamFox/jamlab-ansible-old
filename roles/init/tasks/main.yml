@@ -43,4 +43,18 @@
 - name: Set hostname (FQDN)
   ansible.builtin.shell: "/usr/bin/hostnamectl set-hostname {{ ansible_fqdn }}"
   when: r_hostname.stdout != ansible_fqdn
-  
+
+- name: Configure daily ansible execution
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /etc/systemd/system/
+  loop:
+  - daily-ansible.service
+  - daily-ansible.timer
+
+- name: Enable and start daily playbook timer
+  ansible.builtin.systemd:
+    name: daily-playbook.timer
+    state: started
+    enabled: true
+    daemon_reload: true
