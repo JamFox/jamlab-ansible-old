@@ -343,5 +343,4 @@ function saveit ()
         done
 }
 
-eval $(keychain --eval --quiet ~/.ssh/*)
-clear
+eval $(keychain --eval --quiet ~/.ssh/* &>/dev/null)

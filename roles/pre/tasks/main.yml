@@ -22,3 +22,11 @@
       tags: [ auth ]
   when: not (disabled_roles.auth | default(false))
   tags: always
+
+- name: Include motd role
+  ansible.builtin.include_role:
+    name: motd
+    apply:
+      tags: [ motd ]
+  when: not (disabled_roles.motd | default(false))
+  tags: always
