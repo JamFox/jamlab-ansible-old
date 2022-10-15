@@ -58,3 +58,18 @@
     state: started
     enabled: true
     daemon_reload: true
+
+- name: Configure wakeup service
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode|default('0644') }}"
+  loop:
+  - { src: wakeup.service, dest: /etc/systemd/system/ }
+  - { src: wakeup.sh, dest: /etc/systemd/scripts/, mode: "0755" }
+
+- name: Enable wakeup service
+  ansible.builtin.systemd:
+    name: wakeup.service
+    enabled: true
+    daemon_reload: true
