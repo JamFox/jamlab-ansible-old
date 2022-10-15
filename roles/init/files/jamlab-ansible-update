@@ -1,0 +1,68 @@
+#!/bin/bash
+# Managed by jamlab-ansible
+# Name:     ansible-pull
+# Purpose:  Update and execute jamlab-ansible
+
+# Color codes
+COLOR_RED_BOLD='\e[31;1m'
+COLOR_YELLOW_BOLD='\e[33;1m'
+COLOR_GREEN_BOLD='\e[32;1m'
+COLOR_RESET='\e[00m'
+
+# Global variables
+exec_path=$(pwd)
+ANSIBLE_REPO_URL=https://github.com/JamFox/jamlab-ansible.git
+ANSIBLE_MAIN_DIR=/opt/jamlab-ansible
+DEFAULT_BRANCH=main
+ANSIBLE_EXEC_NAME=jamlab-ansible
+ANSIBLE_EXEC_DEST=/usr/local/sbin
+
+# Check user
+if [[ $(id -un) != root ]]
+then
+    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Only root may run this script" >&2
+    exit 1
+fi
+
+# Check that there is no other running instance of this script
+script_name=$(basename $0)
+if [[ $(pidof -x $script_name) != $$ ]]
+then
+    echo -e "[ ${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET} ] $script_name is already running" >&2
+    exit 2
+fi
+
+# Clone if not exist yet
+if [ ! -d $ANSIBLE_MAIN_DIR ]
+then
+    git clone $ANSIBLE_REPO_URL $ANSIBLE_MAIN_DIR
+    if [ $? -ne 0 ]; then
+        echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to clone $ANSIBLE_REPO_URL" >&2
+        exit 1
+    fi
+fi
+
+# Pull latest 
+cd $ANSIBLE_MAIN_DIR
+git checkout $DEFAULT_BRANCH
+if [ $? -ne 0 ]; then
+    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to checkout branch $ANSIBLE_MAIN_DIR at $ANSIBLE_REPO_URL" >&2
+    exit 1
+fi
+git pull
+if [ $? -ne 0 ]; then
+    echo -e "[ ${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET} ] Unable to pull latest $branch at $ANSIBLE_REPO_URL"
+    echo -e "[ ${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET} ] Continuing without pulling latest..."
+fi
+
+# Copy latest jamlab-ansible to PATH
+cp $ANSIBLE_MAIN_DIR/bin/$ANSIBLE_EXEC_NAME $ANSIBLE_EXEC_DEST
+if [ $? -ne 0 ]; then
+    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to copy $ANSIBLE_MAIN_DIR/bin/$ANSIBLE_EXEC_NAME to $ANSIBLE_EXEC_DEST" >&2
+    exit 1
+fi
+chmod 755 $ANSIBLE_EXEC_DEST/$ANSIBLE_EXEC_NAME
+
+# Execute latest jamlab-ansible
+echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET} ] Executing $ANSIBLE_EXEC_DEST/$ANSIBLE_EXEC_NAME $@"
+$ANSIBLE_EXEC_DEST/$ANSIBLE_EXEC_NAME $@

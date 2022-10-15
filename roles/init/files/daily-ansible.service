@@ -1,0 +1,10 @@
+# Managed by jamlab-ansible
+[Unit]
+Description=daily-playbook service
+After=network-online.target
+
+[Service]
+# Because StandardOutput= is 'truncate', there must be only one ExecStart=
+StandardOutput=truncate:/var/log/daily-playbook.log
+ExecStart=/bin/bash -c "/usr/local/sbin/jamlab-ansible -r"
+Type=oneshot

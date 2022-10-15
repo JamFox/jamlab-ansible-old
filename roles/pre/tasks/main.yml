@@ -1,0 +1,8 @@
+# 'pre' main is used to call all prerequisite roles on all machines.
+- name: Include init role
+  ansible.builtin.include_role:
+    name: init
+    apply:
+      tags: [ init ]
+  when: not disabled_roles.init | default(false)
+  tags: always

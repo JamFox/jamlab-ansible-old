@@ -1,0 +1,11 @@
+# Managed by jamlab-ansible
+[Unit]
+Description=daily-playbook timer
+
+[Timer]
+OnCalendar=Mon..Fri 07:00:00
+RandomizedDelaySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,7 +1,7 @@
 #!/bin/bash
-#
+# Managed by jamlab-ansible
 # Name:     ansible-pull
-# Purpose:  Run ansible-playbook in pull mode to configure host
+# Purpose:  Run ansible playbooks in pull mode to configure host
 
 # Color codes
 COLOR_RED_BOLD='\e[31;1m'
@@ -14,6 +14,8 @@ exec_path=$(pwd)
 ANSIBLE_REPO_URL=https://github.com/JamFox/jamlab-ansible.git
 ANSIBLE_MAIN_DIR=/opt/jamlab-ansible
 DEFAULT_BRANCH=main
+ANSIBLE_EXEC_NAME=jamlab-ansible
+ANSIBLE_EXEC_DEST=/usr/local/sbin
 
 # Check user
 if [[ $(id -un) != root ]]
@@ -28,7 +30,7 @@ then
     source /etc/os-release
     [[ $ID == debian ]] && os=debian
 else
-    echo -e "[  ${COLOR_RED_BOLD}FATAL${COLOR_RESET}  ] Unable to read /etc/os-release" >&2
+    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to read /etc/os-release" >&2
     exit 1
 fi
 if [[ -z $os ]]
@@ -41,7 +43,7 @@ fi
 script_name=$(basename $0)
 if [[ $(pidof -x $script_name) != $$ ]]
 then
-    echo -e "[${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET}] $script_name is already running" >&2
+    echo -e "[ ${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET} ] $script_name is already running" >&2
     exit 2
 fi
 
@@ -66,32 +68,6 @@ done
 # Set default branch if not specified
 branch=${branch:=$DEFAULT_BRANCH}
 
-# Clone if not exist yet
-if [ ! -d $ANSIBLE_MAIN_DIR ]
-then
-    git clone $ANSIBLE_REPO_URL $ANSIBLE_MAIN_DIR
-    if [ $? -ne 0 ]; then
-        echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to clone $ANSIBLE_REPO_URL" >&2
-        exit 1
-    fi
-fi
-
-# Pull latest if argument set
-if [[ $refresh == true ]]
-then
-    cd $ANSIBLE_MAIN_DIR
-    git checkout $branch
-    if [ $? -ne 0 ]; then
-        echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to checkout branch $branch at $ANSIBLE_REPO_URL" >&2
-        exit 1
-    fi
-    git pull
-    if [ $? -ne 0 ]; then
-        echo -e "[${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET}] Unable to checkout branch $branch at $ANSIBLE_REPO_URL"
-        echo -e "[${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET}] Continuing without pulling latest..."
-    fi
-fi
-
 # Determine execution directory
 if [[ -e $exec_path/ansible.cfg ]]
 then
@@ -102,6 +78,33 @@ then
 else
     echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to find ansible.cfg from current directory or $ANSIBLE_MAIN_DIR" >&2
     exit 1
+fi
+echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET} ] Executing path $ansible_path"
+
+# Clone if not exist yet
+if [ ! -d $ansible_path ]
+then
+    git clone $ANSIBLE_REPO_URL $ansible_path
+    if [ $? -ne 0 ]; then
+        echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to clone $ANSIBLE_REPO_URL" >&2
+        exit 1
+    fi
+fi
+
+# Pull latest if argument set
+if [[ $refresh == true ]]
+then
+    cd $ansible_path
+    git checkout $branch
+    if [ $? -ne 0 ]; then
+        echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to checkout branch $branch at $ANSIBLE_REPO_URL" >&2
+        exit 1
+    fi
+    git pull
+    if [ $? -ne 0 ]; then
+        echo -e "[ ${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET} ] Unable to pull latest branch $branch at $ANSIBLE_REPO_URL"
+        echo -e "[ ${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET} ] Continuing without pulling latest..."
+    fi
 fi
 
 # Display last commit
@@ -130,12 +133,12 @@ done
 # If no playbooks found
 if [[ -z $playbook_path_list ]]
 then
-    echo -e "[${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET}] No playbooks found, nothing done"
+    echo -e "[ ${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET} ] No playbooks found, nothing done"
     exit 2
 fi
 
 # Display playbooks to execute
-echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET}  ] Playbooks to execute:"
+echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET} ] Playbooks to execute:"
 for playbook_path in $playbook_path_list
 do
     echo "    $(basename $playbook_path)"

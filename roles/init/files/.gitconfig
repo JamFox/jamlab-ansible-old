@@ -1,0 +1,6 @@
+# Managed by jamlab-ansible
+[user]
+        name = JamFox
+        email = github@jamfox.dev
+[pull]
+        ff = only

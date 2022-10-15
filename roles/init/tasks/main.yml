@@ -1,0 +1,46 @@
+- name: Configure defaults for root user
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+  - { src: .bashrc, dest: /root/.bashrc}
+  - { src: .bash_profile, dest: /root/.bash_profile }
+  - { src: .gitconfig, dest: /root/.gitconfig }
+  - { src: .tmux.conf, dest: /root/.tmux.conf }
+
+- name: Configure latest jamlab-ansible-update
+  ansible.builtin.copy:
+    src: jamlab-ansible-update
+    dest: /usr/local/sbin/
+    mode: "0755"
+
+- name: Check whether systemd-journald is persistent
+  ansible.builtin.stat:
+    path: /var/log/journal
+  register: r_journal
+
+- name: Create persistent journal
+  block:
+
+  - name: Create journal directory
+    ansible.builtin.file:
+      path: /var/log/journal
+      state: directory
+
+  - name: Reload systemd-journald with new settings
+    ansible.builtin.command: "{{ item }}"
+    loop:
+    - systemd-tmpfiles --create --prefix /var/log/journal
+    - killall -USR1 systemd-journald
+
+  when: not r_journal.stat.exists
+
+- name: Get current hostname
+  ansible.builtin.command: hostnamectl --static
+  register: r_hostname
+  changed_when: false
+
+- name: Set hostname (FQDN)
+  ansible.builtin.shell: "/usr/bin/hostnamectl set-hostname {{ ansible_fqdn }}"
+  when: r_hostname.stdout != ansible_fqdn
+  

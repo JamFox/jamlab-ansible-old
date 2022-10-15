@@ -1,0 +1,12 @@
+# Managed by jamlab-ansible
+[Unit]
+Description=Wakeup script to run once on boot
+Wants=network.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/etc/systemd/scripts/wakeup.sh
+
+[Install]
+WantedBy=multi-user.target
