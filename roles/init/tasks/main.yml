@@ -54,7 +54,7 @@
 
 - name: Enable and start daily playbook timer
   ansible.builtin.systemd:
-    name: daily-playbook.timer
+    name: daily-ansible.timer
     state: started
     enabled: true
     daemon_reload: true
