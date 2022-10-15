@@ -1,0 +1,10 @@
+- name: Configure ssh
+  ansible.builtin.copy:
+    src: sshd_config
+    dest: /etc/ssh/sshd_config
+  notify: Restart sshd service
+
+- name: Copy authorized_keys2
+  ansible.builtin.copy:
+    src: authorized_keys2
+    dest: /root/.ssh/authorized_keys2

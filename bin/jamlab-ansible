@@ -151,8 +151,9 @@ fi
 echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET} ] Playbooks to execute:"
 for playbook_path in $playbook_path_list
 do
-    echo "    $(basename $playbook_path)"
+    echo "    $playbook_path"
 done
+echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET} ] Executing with arguments: $ansible_arg_list"
 
 # Run playbooks
 export ANSIBLE_CONFIG="$ansible_path/ansible.cfg"

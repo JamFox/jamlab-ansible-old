@@ -14,3 +14,11 @@
       tags: [ base_pkg ]
   when: not (disabled_roles.base_pkg | default(false))
   tags: always
+
+- name: Include auth role
+  ansible.builtin.include_role:
+    name: auth
+    apply:
+      tags: [ auth ]
+  when: not (disabled_roles.auth | default(false))
+  tags: always
