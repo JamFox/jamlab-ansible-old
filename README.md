@@ -16,48 +16,29 @@ Variable precedence is as follows (from the weakest to the strongest):
 3. host vars (`playbooks/ppp/host_vars/hhh.yml`)
 4. ansible argument (`ansible-playbook --extra-vars "my_var=my_value" ...`)
 
-### Hash behavior in variable precedence
+## Combine group and host vars
 
-Variable precedence means that a variable with a higher precedence will REPLACE the same variable definition with a lower one.
-However, we configured Ansible to have a different behavior with dictionaries (named as well maps or hashes).
-Dictionaries will be merged. Here is an example:
-```yml
-my_dict: {}       # Definition in rrr/defaults/main.yml
-my_dict:          # Definition in playbooks/ppp/group_vars/all.yml
-  key_1: value_1
-  key_2: value_2
-my_dict:          # Definition in playbooks/ppp/host_vars/hhh.yml
-  key_2: value_3
-  key_3: value_4
-```
-During execution, we'll get the final dictionary:
-```yml
-my_dict:
-  key_1: value_1
-  key_2: value_3
-  key_3: value_4
-```
-As a consequence, it is not necessary to redefine all the keys in the dictionary when wanting to add a key or modify its value.
-Another consequence is that it is impossible to remove a key from a dictionary, just adding or modifying its value.
+After the announcement of deprecating `hash_behaviour=merge` option in Ansible it is no longer possible to conveniently combine dictionaries with same names in role, group and host variables. 
 
-This is different from lists (named as well arrays). List are always replaced when using precedence:
-```yml
-my_list: []       # Definition in rrr/defaults/main.yml
-my_list:          # Definition in playbooks/ppp/group_vars/all.yml
-- value_1
-- value_2
-- value_3
-my_list:          # Definition in playbooks/ppp/host_vars/hhh.yml
-- value_1
-- value_4
-```
-During execution, we'll get the final list:
-```yml
-my_list:
-- value_1
-- value_4
-```
-The list has been fully replaced by the precedence.
+When merging dictionaries the following convention should be followed:
+
+For role defaults use the regular variable name `exampledict` in `rrr/defaults/main.yml`:
+``yml
+exampledict:
+    - name: var1
+``
+
+For group defaults use the `group_` prefix with variable name `exampledict` in `playbooks/ppp/group_vars/all.yml`:
+``yml
+group_exampledict:
+    - name: var2
+``
+
+For host defaults use the `host_` prefix with variable name `exampledict` in `playbooks/ppp/host_vars/hhh.yml`:
+``yml
+host_exampledict:
+    - name: var3
+``
 
 ## Playbook structure
 

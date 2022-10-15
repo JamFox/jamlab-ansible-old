@@ -4,3 +4,7 @@
   roles:
 
   - { role: pre, tags: [ pre ], when: not (disabled_roles.pre | default(false)) }
+
+  tasks:
+      - debug:
+          var: my_dict|combine(my_dict1,my_dict2)
