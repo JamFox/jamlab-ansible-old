@@ -5,6 +5,6 @@ After=network-online.target
 
 [Service]
 # Because StandardOutput= is 'truncate', there must be only one ExecStart=
-StandardOutput=truncate:/var/log/daily-playbook.log
-ExecStart=/bin/bash -c "/usr/local/sbin/jamlab-ansible -r"
+StandardOutput=truncate:/var/log/daily-ansible.log
+ExecStart=/bin/bash -c "/usr/local/sbin/jamlab-ansible-update -r"
 Type=oneshot
