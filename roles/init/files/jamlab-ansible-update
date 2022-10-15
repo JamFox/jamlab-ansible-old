@@ -10,7 +10,6 @@ COLOR_GREEN_BOLD='\e[32;1m'
 COLOR_RESET='\e[00m'
 
 # Global variables
-exec_path=$(pwd)
 ANSIBLE_REPO_URL=https://github.com/JamFox/jamlab-ansible.git
 ANSIBLE_MAIN_DIR=/opt/jamlab-ansible
 DEFAULT_BRANCH=main

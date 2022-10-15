@@ -1,6 +1,5 @@
 #!/bin/bash
 # Managed by jamlab-ansible
-# Name:     ansible-pull
 # Purpose:  Run ansible playbooks in pull mode to configure host
 
 # Color codes
@@ -10,7 +9,7 @@ COLOR_GREEN_BOLD='\e[32;1m'
 COLOR_RESET='\e[00m'
 
 # Global variables
-exec_path=$(pwd)
+exec_path="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 host_name=$(hostname -s)
 ANSIBLE_REPO_URL=https://github.com/JamFox/jamlab-ansible.git
 ANSIBLE_MAIN_DIR=/opt/jamlab-ansible
@@ -69,19 +68,6 @@ done
 # Set default branch if not specified
 branch=${branch:=$DEFAULT_BRANCH}
 
-# Determine execution directory
-if [[ -e $exec_path/ansible.cfg ]]
-then
-    ansible_path=$exec_path
-elif [[ -e $ANSIBLE_MAIN_DIR/ansible.cfg ]]
-then
-    ansible_path=$ANSIBLE_MAIN_DIR
-else
-    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to find ansible.cfg from current directory or $ANSIBLE_MAIN_DIR" >&2
-    exit 1
-fi
-echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET} ] Executing path $ansible_path"
-
 # Clone if not exist yet
 if [ ! -d $ansible_path ]
 then
@@ -91,6 +77,19 @@ then
         exit 1
     fi
 fi
+
+# Determine execution directory
+if [[ -e $exec_path/../ansible.cfg ]]
+then
+    ansible_path=$(dirname $exec_path)
+elif [[ -e $ANSIBLE_MAIN_DIR/ansible.cfg ]]
+then
+    ansible_path=$ANSIBLE_MAIN_DIR
+else
+    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to find ansible.cfg from $exec_path or $ANSIBLE_MAIN_DIR" >&2
+    exit 1
+fi
+echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET} ] Executing path $ansible_path"
 
 # Checkout default or specified branch
 cd $ansible_path

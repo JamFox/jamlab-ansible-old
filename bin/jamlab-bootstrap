@@ -9,5 +9,8 @@ apt update && apt upgrade -y
 apt install vim git ansible jq -y 
 
 # Execute jamlab-ansible
-DIR=$(dirname "$0")
-$DIR/jamlab-ansible
+exec_path="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+root_path=$(dirname $exec_path)
+cd $root_path
+echo $root_path
+$root_path/bin/jamlab-ansible
