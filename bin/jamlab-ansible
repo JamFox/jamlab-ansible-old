@@ -9,6 +9,12 @@ COLOR_YELLOW_BOLD='\e[33;1m'
 COLOR_GREEN_BOLD='\e[32;1m'
 COLOR_RESET='\e[00m'
 
+# Global variables
+exec_path=$(pwd)
+ANSIBLE_REPO_URL=https://github.com/JamFox/jamlab-ansible.git
+ANSIBLE_MAIN_DIR=/opt/jamlab-ansible
+DEFAULT_BRANCH=main
+
 # Check user
 if [[ $(id -un) != root ]]
 then
@@ -57,11 +63,10 @@ do
     esac
     shift
 done
-branch=${branch:=main}
+# Set default branch if not specified
+branch=${branch:=$DEFAULT_BRANCH}
 
 # Clone if not exist yet
-ANSIBLE_REPO_URL=https://github.com/JamFox/jamlab-ansible.git
-ANSIBLE_MAIN_DIR=/opt/jamlab-ansible
 if [ ! -d $ANSIBLE_MAIN_DIR ]
 then
     git clone $ANSIBLE_REPO_URL $ANSIBLE_MAIN_DIR
@@ -75,7 +80,6 @@ fi
 if [[ $refresh == true ]]
 then
     cd $ANSIBLE_MAIN_DIR
-
     git checkout $branch
     if [ $? -ne 0 ]; then
         echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to checkout branch $branch at $ANSIBLE_REPO_URL" >&2
@@ -89,17 +93,64 @@ then
 fi
 
 # Determine execution directory
-exec_path=$(dirname $0)
-if [[ -e $exec_path/../ansible.cfg ]]
+if [[ -e $exec_path/ansible.cfg ]]
 then
-    ansible_path=$exec_path/..
+    ansible_path=$exec_path
 elif [[ -e $ANSIBLE_MAIN_DIR/ansible.cfg ]]
 then
     ansible_path=$ANSIBLE_MAIN_DIR
 else
-    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to find ansible.cfg from current dir or $ANSIBLE_MAIN_DIR" >&2
+    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to find ansible.cfg from current directory or $ANSIBLE_MAIN_DIR" >&2
     exit 1
 fi
-ansible_path=$(readlink -f $ansible_path)
 
-echo "END"
+# Display last commit
+echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET}  ] Last commit: $(git log -1)"
+
+# Build default playbook list if none provided
+if [[ -z $playbook_list ]]
+then
+    prefix=group_
+    playbook_list+=$'\n'$(ansible -i $ansible_path/hosts -m debug -a 'msg={{group_names}}' $host_name \
+    | awk -v p=$prefix '/^[ ]{8}/ {split($1, a, "[\"]"); print p a[2]}')
+    prefix=host_
+    playbook_list+=$'\n'$prefix$host_name
+fi
+
+# Build list of playbooks that actually exist
+for playbook in $playbook_list
+do
+    playbook_path=$ansible_path/playbooks/$playbook/local.yml
+    if [[ -f $playbook_path ]]
+    then
+        playbook_path_list+=$playbook_path$'\n'
+    fi
+done
+
+# If no playbooks found
+if [[ -z $playbook_path_list ]]
+then
+    echo -e "[${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET}] No playbooks found, nothing done"
+    exit 2
+fi
+
+# Display playbooks to execute
+echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET}  ] Playbooks to execute:"
+for playbook_path in $playbook_path_list
+do
+    echo "    $(basename $playbook_path)"
+done
+
+# Run playbooks
+export ANSIBLE_CONFIG="$ansible_path/ansible.cfg"
+ansible-playbook \
+    --extra-vars "ansible_python_interpreter=/usr/bin/python3" \
+    -i $ansible_path/hosts \
+    -l $host_name \
+    -c local \
+    $ansible_arg_list \
+    $playbook_path_list
+
+# Clean up Ansible's temporary files
+rm -fr /tmp/ansible-local-*
+rm -fr /tmp/ansible-remote-*
