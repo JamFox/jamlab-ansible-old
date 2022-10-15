@@ -22,4 +22,5 @@
       - keychain 
       - tmux 
       - python3
+      - logrotate
     state: latest
