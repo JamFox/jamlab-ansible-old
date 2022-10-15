@@ -11,6 +11,7 @@ COLOR_RESET='\e[00m'
 
 # Global variables
 exec_path=$(pwd)
+host_name=$(hostname -s)
 ANSIBLE_REPO_URL=https://github.com/JamFox/jamlab-ansible.git
 ANSIBLE_MAIN_DIR=/opt/jamlab-ansible
 DEFAULT_BRANCH=main
@@ -116,8 +117,16 @@ echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET}  ] Last commit: $(git log -1)"
 if [[ -z $playbook_list ]]
 then
     prefix=group_
-    playbook_list+=$'\n'$(ansible -i $ansible_path/hosts -m debug -a 'msg={{group_names}}' $host_name \
-    | awk -v p=$prefix '/^[ ]{8}/ {split($1, a, "[\"]"); print p a[2]}')
+    groups_json=$(ansible -i $ansible_path/hosts -m debug -a "var=group_names" -o $host_name)
+    if [ "${group_names_json}" == "No hosts matched" ]
+    then
+        echo -e "[ ${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET} ] No host group found"
+    else
+        groups_json=${groups_json#*> }
+        jq_filter=".group_names | sort"
+        host_groups=$(echo "${groups_json}" | jq "${jq_filter}" | jq -r ".[]")
+    fi
+    playbook_list+=$prefix$host_groups
     prefix=host_
     playbook_list+=$'\n'$prefix$host_name
 fi
