@@ -1,0 +1,21 @@
+- name: Install dnsmasq
+  ansible.builtin.apt:
+    name:
+      - dnsmasq
+    state: latest
+
+- name: Configure dnsmasq
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+  - { src: jamlab-dns.conf, dest: /etc/dnsmasq.d/ }
+  - { src: jamlab-records.conf, dest: /etc/dnsmasq.d/ }
+  register: r_dns_config
+
+- name: Restart dnsmasq if config changed
+  ansible.builtin.systemd:
+    name: dnsmasq
+    state: restarted
+  when: r_dns_config.changed
+  
