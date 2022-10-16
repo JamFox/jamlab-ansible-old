@@ -1,0 +1,66 @@
+- name: Remove system default certbot
+  ansible.builtin.apt:
+    name:
+      - certbot
+    state: absent
+
+- name: Install ddclient
+  ansible.builtin.apt:
+    name:
+      - ddclient
+    state: latest
+
+- name: Configure ddclient
+  ansible.builtin.template:
+    src: ddclient.conf.j2
+    dest: /etc/ddclient.conf
+
+- name: Decrypt ddclient.conf
+  ansible.builtin.shell: sops -d -i /etc/ddclient.conf; echo $(hostname -s) >> /etc/ddclient.conf
+
+- name: Restart ddclient
+  ansible.builtin.systemd:
+    name: ddclient
+    state: restarted
+
+- name: Check /snap/bin/certbot
+  ansible.builtin.stat:
+    path: /snap/bin/certbot
+  register: r_certbot
+
+- name: Install cerbot from snap
+  ansible.builtin.shell: snap install --classic certbot; snap set certbot trust-plugin-with-root=ok
+  when: not r_certbot.stat.exists
+
+- name: Link certbot to /usr/bin
+  ansible.builtin.file:
+    src: /snap/bin/certbot
+    dest: /usr/bin/certbot
+    state: link
+
+- name: Check /opt/acme.sh
+  ansible.builtin.stat:
+    path: /opt/acme.sh
+  register: r_acme
+
+- name: Clone and install acme.sh
+  ansible.builtin.shell: |
+    cd /opt/
+    git clone https://github.com/acmesh-official/acme.sh.git
+    cd acme.sh
+    ./acme.sh --install  \
+    --cert-home  /etc/ssl/certs \
+    --accountemail  "acme@jamfox.dev"
+  when: not r_acme.stat.exists
+
+- name: Check /opt/ACME_SETUP_DONE
+  ansible.builtin.stat:
+    path: /opt/ACME_SETUP_DONE
+  register: r_acmesetup
+
+- name: Issue certificate
+  ansible.builtin.shell: |
+    /root/.acme.sh/acme.sh --issue --standalone -d {{ ansible_hostname }}.jamfox.dev --log
+    touch /opt/ACME_SETUP_DONE
+  when: not r_acmesetup.stat.exists
+  

@@ -10,6 +10,9 @@
       - snapd
     state: latest
 
+- name: Install and refresh snap core
+  ansible.builtin.shell: snap install core; snap refresh core
+
 - name: Install base packages
   ansible.builtin.apt:
     name:
@@ -23,4 +26,9 @@
       - tmux 
       - python3
       - logrotate
+      - net-tools
+      - build-essential 
+      - procps 
+      - file
+      - gpg
     state: latest

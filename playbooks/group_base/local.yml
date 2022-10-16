@@ -5,3 +5,5 @@
 
   - { role: pre, tags: [ pre ], when: not (disabled_roles.pre | default(false)) }
   - { role: dns, tags: [ dns ], when: not (disabled_roles.dns | default(false)) }
+  - { role: ssl, tags: [ ssl ], when: not (disabled_roles.ssl | default(false)) }
+  - { role: proxmox, tags: [ proxmox ], when: not (disabled_roles.proxmox | default(false)) }

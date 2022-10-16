@@ -1,12 +1,44 @@
 !#/bin/bash
 # Purpose: Set up first hypervisor for running ansible for the first time 
 
+# Color codes
+COLOR_RED_BOLD='\e[31;1m'
+COLOR_YELLOW_BOLD='\e[33;1m'
+COLOR_GREEN_BOLD='\e[32;1m'
+COLOR_RESET='\e[00m'
+
+# Check user
+if [[ $(id -un) != root ]]
+then
+    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Only root may run this script" >&2
+    exit 1
+fi
+
+if [[ -e /usr/local/sbin/jamlab-ansible-update ]]
+then
+    echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET} ] Bootstrap already done, run jamlab-ansible-update instead"
+    exit 0
+fi
+
 # Remove Proxmox Enterprise sources
 rm /etc/apt/sources.list.d/pve-enterprise.list
 
 # Upgrade system and install jamlab-ansible dependencies
 apt update && apt upgrade -y 
-apt install vim git ansible jq -y 
+apt install vim git ansible jq gpg -y 
+
+# Import SOPS keys
+SOPS_KEY_LOCATION=/root
+SOPS_PUB=public.key
+SOPS_PRIV=private.key
+if [[ -e $SOPS_KEY_LOCATION/$SOPS_PUB ]] && [[ -e $SOPS_KEY_LOCATION/$SOPS_PRIV ]]
+then
+    gpg --import $SOPS_KEY_LOCATION/$SOPS_PUB
+    gpg --import $SOPS_KEY_LOCATION/$SOPS_PRIV
+else
+    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to read SOPS keys $SOPS_KEY_LOCATION/$SOPS_PUB and $SOPS_KEY_LOCATION/$SOPS_PRIV" >&2
+    exit 1
+fi
 
 # Execute jamlab-ansible
 exec_path="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"

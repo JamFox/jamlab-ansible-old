@@ -68,16 +68,6 @@ done
 # Set default branch if not specified
 branch=${branch:=$DEFAULT_BRANCH}
 
-# Clone if not exist yet
-if [ ! -d $ansible_path ]
-then
-    git clone $ANSIBLE_REPO_URL $ansible_path
-    if [ $? -ne 0 ]; then
-        echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to clone $ANSIBLE_REPO_URL" >&2
-        exit 1
-    fi
-fi
-
 # Determine execution directory
 if [[ -e $exec_path/../ansible.cfg ]]
 then
@@ -90,6 +80,16 @@ else
     exit 1
 fi
 echo -e "[ ${COLOR_GREEN_BOLD}INFO${COLOR_RESET} ] Executing path $ansible_path"
+
+# Clone if not exist yet
+if [ ! -d $ansible_path ]
+then
+    git clone $ANSIBLE_REPO_URL $ansible_path
+    if [ $? -ne 0 ]; then
+        echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to clone $ANSIBLE_REPO_URL" >&2
+        exit 1
+    fi
+fi
 
 # Checkout default or specified branch
 cd $ansible_path

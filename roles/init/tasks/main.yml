@@ -40,7 +40,7 @@
   register: r_hostname
   changed_when: false
 
-- name: Set hostname (FQDN)
+- name: Set hostname
   ansible.builtin.shell: "/usr/bin/hostnamectl set-hostname {{ ansible_fqdn }}"
   when: r_hostname.stdout != ansible_fqdn
 
@@ -73,3 +73,33 @@
     name: wakeup.service
     enabled: true
     daemon_reload: true
+
+- name: Check if sops exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/sops
+  register: r_sops
+
+- name: Set hostname (FQDN)
+  ansible.builtin.shell: "/usr/bin/hostnamectl set-hostname {{ ansible_fqdn }}"
+  when: r_hostname.stdout != ansible_fqdn
+
+- name: Check if newer sops exists
+  ansible.builtin.shell: |
+    latest_sops_url=$(curl -s https://api.github.com/repos/mozilla/sops/releases/latest | jq -r ".assets[] | select(.name | test(\"amd64.deb\")) | .browser_download_url" | cut -d "_" -f 2)
+    current_sops_ver=$(/usr/local/bin/sops -v | cut -d " " -f 2)
+    case "$current_sops_ver" in $latest_sops_url ) echo "latest";; *) echo "outdated";; esac
+  register: r_sops_ver
+  when: r_sops.stat.exists
+
+- name: Get latest sops
+  ansible.builtin.shell: |
+    latest_sops_url=$(curl -s https://api.github.com/repos/mozilla/sops/releases/latest | jq -r ".assets[] | select(.name | test(\"amd64.deb\")) | .browser_download_url")
+    wget -P /tmp $latest_sops_url
+    apt install /tmp/"${latest_sops_url##*/}"
+    rm /tmp/"${latest_sops_url##*/}"
+  when: not r_sops.stat.exists or r_sops_ver.stdout != "latest"
+
+- name: Configure SOPS
+  ansible.builtin.copy:
+    src: .sops.yaml
+    dest: /root/.sops.yaml

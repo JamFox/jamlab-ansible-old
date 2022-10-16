@@ -4,7 +4,16 @@ Ansible playbooks for configuration management in pull mode.
 
 ## Bootstrap
 
-To run jamlab-ansible for the first time (i.e. reinstalling or setting up hypervisor for the first time) use `bin/jamlab-bootstrap` which installs dependencies and runs `bin/jamlab-ansible` for the first time to set up the system.
+To bootstrap, follow the following steps:
+
+1. Import SOPS keys to `/root/public.key` and `/root/private.key`
+  ```bash
+  gpg --import /root/public.key
+  gpg --import /root/private.key
+  ```
+2. Add A + DDNS Record at registrar. 
+
+3. To run jamlab-ansible for the first time (i.e. reinstalling or setting up hypervisor for the first time) use `bin/jamlab-bootstrap` which installs dependencies and runs `bin/jamlab-ansible` for the first time to set up the system.
 
 ## Host inventory
 

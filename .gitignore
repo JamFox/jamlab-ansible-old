@@ -15,6 +15,9 @@
 *.dat
 *password*
 *.httr-oauth*
+*.key
+*.pem
+*.cert
 
 # Temp files
 *.bak
