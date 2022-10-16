@@ -7,5 +7,5 @@ After=network-online.target
 # Because StandardOutput= is 'truncate', there must be only one ExecStart=
 StandardOutput=file:/var/log/daily-ansible.log
 ExecStartPre=/usr/bin/truncate --size=0 /var/log/daily-ansible.log
-ExecStart=/bin/bash -c "/usr/local/sbin/jamlab-ansible-update -r"
+ExecStart=/bin/bash -c "/usr/local/sbin/jamlab-ansible-update"
 Type=oneshot
