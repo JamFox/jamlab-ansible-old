@@ -21,7 +21,10 @@ then
 fi
 
 # Remove Proxmox Enterprise sources
-rm /etc/apt/sources.list.d/pve-enterprise.list
+if [[ -e /etc/apt/sources.list.d/pve-enterprise.list ]]
+then
+    rm /etc/apt/sources.list.d/pve-enterprise.list
+fi
 
 # Upgrade system and install jamlab-ansible dependencies
 apt update && apt upgrade -y 
