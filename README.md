@@ -8,7 +8,7 @@ To bootstrap, follow the following steps:
 
 1. Import SOPS keys to `/root/public.key` and `/root/private.key`
 
-2. Add A + DDNS Record at registrar. 
+2. Add A + DDNS records for all hosts at registrar or DNS provider. 
 
 3. To run jamlab-ansible for the first time (i.e. reinstalling or setting up hypervisor for the first time) use `bin/jamlab-bootstrap` which installs dependencies and runs `bin/jamlab-ansible` for the first time to set up the system.
 
