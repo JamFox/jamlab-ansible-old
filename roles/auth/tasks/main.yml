@@ -8,3 +8,17 @@
   ansible.builtin.copy:
     src: authorized_keys2
     dest: /root/.ssh/authorized_keys2
+
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name:
+      - fail2ban
+    state: latest
+
+- name: Enable and start fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban.service
+    state: started
+    enabled: true
+    daemon_reload: true
+    

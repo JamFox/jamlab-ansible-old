@@ -1,4 +1,4 @@
-- name: Installing Pre-Reqs
+- name: Install dnsutils
   ansible.builtin.apt:
     name:
       - dnsutils
@@ -9,7 +9,7 @@
     path: /etc/motd
     state: absent
 
-- name: Configure MOTD
+- name: Configure motd
   ansible.builtin.template:
     src: motd.sh.j2
     dest: /etc/motd.sh
