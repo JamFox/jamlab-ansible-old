@@ -56,6 +56,12 @@
     state: started
     enabled: true
     daemon_reload: true
+ 
+- name: Create systemd scripts dir
+  ansible.builtin.file:
+    path: /etc/systemd/scripts
+    state: directory
+    mode: "0755"
 
 - name: Configure wakeup service
   ansible.builtin.copy:
