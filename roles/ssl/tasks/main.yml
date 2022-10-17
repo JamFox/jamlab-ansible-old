@@ -41,13 +41,13 @@
     src: /snap/bin/certbot
     dest: /usr/bin/certbot
     state: link
+    
+# ACME
 
 - name: Check /opt/acme.sh
   ansible.builtin.stat:
     path: /opt/acme.sh
   register: r_acme
-
-# ACME
 
 - name: Clone and install acme.sh
   ansible.builtin.shell: |
@@ -62,10 +62,10 @@
 - name: Check if host certs exist
   ansible.builtin.stat:
     path: "/etc/ssl/certs/{{ ansible_fqdn }}"
-  register: r_acmesetup
+  register: r_hostcerts
 
 - name: Issue certificate
   ansible.builtin.shell: |
     /root/.acme.sh/acme.sh --issue --standalone -d {{ ansible_hostname }}.jamfox.dev --log
-  when: not r_acmesetup.stat.exists
+  when: not r_hostcerts.stat.exists
  
