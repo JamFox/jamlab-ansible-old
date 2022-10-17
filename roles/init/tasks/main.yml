@@ -1,15 +1,3 @@
-# USER
-
-- name: Configure defaults for root user
-  ansible.builtin.copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-  loop:
-  - { src: .bashrc, dest: /root/.bashrc}
-  - { src: .bash_profile, dest: /root/.bash_profile }
-  - { src: .gitconfig, dest: /root/.gitconfig }
-  - { src: .tmux.conf, dest: /root/.tmux.conf }
-
 # SYSTEM
 
 - name: Create setup dir
@@ -134,10 +122,12 @@
     loop:
     - { src: private.key.enc, dest: /root/.pgp/private.key, mode: "0600" }
     - { src: public.key.enc, dest: /root/.pgp/public.key, mode: "0644" }
+    no_log: true
 
   - name: Import pgp keys to gpg
     ansible.builtin.shell: |
       gpg --import /root/.pgp/private.key
       gpg --import /root/.pgp/public.key
+    no_log: true
 
   when: not r_pgp_keys.stat.exists

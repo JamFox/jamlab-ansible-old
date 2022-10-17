@@ -11,6 +11,7 @@
     src: ddclient.conf.j2
     dest: /etc/ddclient.conf
   register: r_ddclient_conf
+  no_log: true
 
 - name: Restart ddclient
   ansible.builtin.systemd:

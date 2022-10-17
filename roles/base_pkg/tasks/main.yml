@@ -31,4 +31,5 @@
       - procps 
       - file
       - gpg
+      - sudo
     state: latest

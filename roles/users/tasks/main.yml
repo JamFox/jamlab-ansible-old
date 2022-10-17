@@ -1,0 +1,97 @@
+# ROOT
+
+- name: Copy defaults for root user
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+  - { src: .bashrc, dest: /root/.bashrc}
+  - { src: .bash_profile, dest: /root/.bash_profile }
+  - { src: .gitconfig, dest: /root/.gitconfig }
+  - { src: .tmux.conf, dest: /root/.tmux.conf }
+
+# SUDO
+
+- name: Ensure sudo_group exists
+  ansible.builtin.group:
+    name: "{{ sudo_group }}"
+    state: present
+
+- name: Allow sudo_group to have passwordless sudo
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^%{{ sudo_group }}'
+    line: '%{{ sudo_group }} ALL=(ALL) NOPASSWD: ALL'
+    validate: '/usr/sbin/visudo -cf %s'
+
+# ADMIN
+
+- name: Set up admin account if defined
+  block:
+    
+  - name: Create admin user(s)
+    ansible.builtin.user:
+      name: "{{ item.username }}"
+      password: "{{ item.password | password_hash('sha512') }}"
+      groups: 
+        - "{{ sudo_group }}"
+        - users
+      state: present
+    loop: "{{ admins }}"
+    no_log: true
+
+  - name: Set the default shell
+    ansible.builtin.user:
+      name: "{{ item.username }}"
+      shell: "{{ item.shell }}"
+    loop: "{{ admins }}"
+    no_log: true
+
+  - name: Ensure group for admin user(s) exists
+    ansible.builtin.group:
+      name: "{{ item.username }}"
+      state: present
+    loop: "{{ admins }}"
+    no_log: true
+
+  - name: Chmod the admin home directories
+    ansible.builtin.file:
+      path: "/home/{{ item.username }}"
+      state: directory
+      mode: 0755
+      owner: "{{ item.username }}"
+      group: "{{ item.username }}"
+      recurse: yes
+    loop: "{{ admins }}"
+    no_log: true
+
+  - name: Copy .bash_profile for admin user(s)
+    ansible.builtin.copy:
+      src: .bash_profile
+      dest: "/home/{{ item.username }}/.bash_profile"
+    loop: "{{ admins }}"
+    no_log: true
+
+  - name: Copy .bashrc for admin user(s)
+    ansible.builtin.copy:
+      src: .bashrc
+      dest: "/home/{{ item.username }}/.bashrc"
+    loop: "{{ admins }}"
+    no_log: true
+
+  - name: Copy .gitconfig for admin user(s)
+    ansible.builtin.copy:
+      src: .gitconfig
+      dest: "/home/{{ item.username }}/.gitconfig"
+    loop: "{{ admins }}"
+    no_log: true
+
+  - name: Copy .tmux.conf for admin user(s)
+    ansible.builtin.copy:
+      src: .tmux.conf
+      dest: "/home/{{ item.username }}/.tmux.conf"
+    loop: "{{ admins }}"
+    no_log: true
+
+  when: (admins is defined) and (admins is iterable)

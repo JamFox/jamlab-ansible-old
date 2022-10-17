@@ -6,10 +6,24 @@
     dest: /etc/ssh/sshd_config
   notify: Restart sshd service
 
-- name: Copy authorized_keys2
+- name: Copy authorized_keys2 to root
   ansible.builtin.copy:
     src: authorized_keys2
     dest: /root/.ssh/authorized_keys2
+
+- name: Create .ssh directory for admin user(s)
+  ansible.builtin.file:
+    path: "/home/{{ item.username }}/.ssh"
+    state: directory
+  loop: "{{ admins }}"
+  no_log: true
+
+- name: Copy authorized_keys2 to admin user(s)
+  ansible.builtin.copy:
+    src: authorized_keys2
+    dest: "/home/{{ item.username }}/.ssh/authorized_keys2"
+  loop: "{{ admins }}"
+  no_log: true
 
 # FAIL2BAN
 

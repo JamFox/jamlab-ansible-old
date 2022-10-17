@@ -6,7 +6,7 @@ Ansible playbooks for configuration management in pull mode.
 
 To bootstrap, follow the following steps:
 
-1. Import SOPS keys to `/root/public.key` and `/root/private.key`
+1. Import ansible vault key to `/root/.ansible-vault-pass`.
 
 2. Add A + DDNS records for all hosts at registrar or DNS provider. 
 

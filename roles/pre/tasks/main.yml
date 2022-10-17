@@ -1,4 +1,4 @@
-# 'pre' main is used to call all prerequisite roles on all machines.
+# 'pre' is used to call all prerequisite roles on all machines
 - name: Include init role
   ansible.builtin.include_role:
     name: init
@@ -15,18 +15,26 @@
   when: not (disabled_roles.base_pkg | default(false))
   tags: always
 
-- name: Include auth role
-  ansible.builtin.include_role:
-    name: auth
-    apply:
-      tags: [ auth ]
-  when: not (disabled_roles.auth | default(false))
-  tags: always
-
 - name: Include motd role
   ansible.builtin.include_role:
     name: motd
     apply:
       tags: [ motd ]
   when: not (disabled_roles.motd | default(false))
+  tags: always
+
+- name: Include users role
+  ansible.builtin.include_role:
+    name: users
+    apply:
+      tags: [ users ]
+  when: not (disabled_roles.users | default(false))
+  tags: always
+
+- name: Include auth role
+  ansible.builtin.include_role:
+    name: auth
+    apply:
+      tags: [ auth ]
+  when: not (disabled_roles.auth | default(false))
   tags: always
