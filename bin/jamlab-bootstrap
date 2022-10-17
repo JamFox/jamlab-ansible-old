@@ -28,18 +28,13 @@ fi
 
 # Upgrade system and install jamlab-ansible dependencies
 apt update && apt upgrade -y 
-apt install vim git ansible jq gpg -y 
+apt install vim git ansible jq -y 
 
-# Import SOPS keys
-SOPS_KEY_LOCATION=/root
-SOPS_PUB=public.key
-SOPS_PRIV=private.key
-if [[ -e $SOPS_KEY_LOCATION/$SOPS_PUB ]] && [[ -e $SOPS_KEY_LOCATION/$SOPS_PRIV ]]
+# Check for ansible vault pass
+ANSIBLE_VAULT_PASS=/root/.ansible-vault
+if [[ ! -e $ANSIBLE_VAULT_PASS ]]
 then
-    gpg --import $SOPS_KEY_LOCATION/$SOPS_PUB
-    gpg --import $SOPS_KEY_LOCATION/$SOPS_PRIV
-else
-    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to read SOPS keys $SOPS_KEY_LOCATION/$SOPS_PUB and $SOPS_KEY_LOCATION/$SOPS_PRIV" >&2
+    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to read ansible vault pass from $ANSIBLE_VAULT_PASS" >&2
     exit 1
 fi
 

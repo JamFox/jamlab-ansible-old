@@ -1,3 +1,5 @@
+# USER
+
 - name: Configure defaults for root user
   ansible.builtin.copy:
     src: "{{ item.src }}"
@@ -7,6 +9,14 @@
   - { src: .bash_profile, dest: /root/.bash_profile }
   - { src: .gitconfig, dest: /root/.gitconfig }
   - { src: .tmux.conf, dest: /root/.tmux.conf }
+
+# SYSTEM
+
+- name: Create setup dir
+  ansible.builtin.file:
+    path: /opt/jamlab-setup
+    state: directory
+    mode: "0700"
 
 - name: Configure latest jamlab-ansible-update
   ansible.builtin.copy:
@@ -74,6 +84,8 @@
     enabled: true
     daemon_reload: true
 
+# SECRETS
+
 - name: Check if sops exists
   ansible.builtin.stat:
     path: /usr/local/bin/sops
@@ -95,7 +107,37 @@
     rm /tmp/"${latest_sops_url##*/}"
   when: not r_sops.stat.exists or r_sops_ver.stdout != "latest"
 
-- name: Configure SOPS
+- name: Configure sops
   ansible.builtin.copy:
     src: .sops.yaml
     dest: /root/.sops.yaml
+
+- name: Check for pgp key
+  ansible.builtin.stat:
+    path: /root/.pgp/private.key
+  register: r_pgp_keys
+
+- name: Set pgp keys
+  block:
+
+  - name: Create pgp dir
+    ansible.builtin.file:
+      path: /root/.pgp
+      state: directory
+      mode: "0700"
+
+  - name: Copy pgp keys
+    ansible.builtin.copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      mode: "{{ item.mode|default('0600') }}"
+    loop:
+    - { src: private.key.enc, dest: /root/.pgp/private.key, mode: "0600" }
+    - { src: public.key.enc, dest: /root/.pgp/public.key, mode: "0644" }
+
+  - name: Import pgp keys to gpg
+    ansible.builtin.shell: |
+      gpg --import /root/.pgp/private.key
+      gpg --import /root/.pgp/public.key
+
+  when: not r_pgp_keys.stat.exists

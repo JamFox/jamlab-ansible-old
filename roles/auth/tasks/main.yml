@@ -1,3 +1,5 @@
+# SSH
+
 - name: Configure ssh
   ansible.builtin.copy:
     src: sshd_config
@@ -8,6 +10,8 @@
   ansible.builtin.copy:
     src: authorized_keys2
     dest: /root/.ssh/authorized_keys2
+
+# FAIL2BAN
 
 - name: Install fail2ban
   ansible.builtin.apt:
