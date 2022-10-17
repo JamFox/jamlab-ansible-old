@@ -1,35 +1,40 @@
-- name: Install dnsutils
-  ansible.builtin.apt:
-    name:
-      - dnsutils
-    state: latest
-
-- name: Remove default motd
-  file:
-    path: /etc/motd
-    state: absent
-
 - name: Configure motd
-  ansible.builtin.template:
-    src: motd.sh.j2
-    dest: /etc/motd.sh
-    mode: "0755"
-  when: motd_script.enabled|bool == true
+  block:
 
-- name: Enable motd script
-  lineinfile:
-    dest: /etc/profile
-    regexp: "^/etc/motd.sh"
-    line: /etc/motd.sh
-    state: present
-  become: true
-  when: motd_script.enabled|bool == true
+  - name: Install dnsutils
+    ansible.builtin.apt:
+      name:
+        - dnsutils
+      state: latest
 
-- name: Disable motd script
-  lineinfile:
-    dest: /etc/profile
-    regexp: "^/etc/motd.sh"
-    line: /etc/motd.sh
-    state: absent
-  become: true
-  when: motd_script.enabled|bool == false
+  - name: Remove default motd
+    file:
+      path: /etc/motd
+      state: absent
+
+  - name: Configure motd
+    ansible.builtin.template:
+      src: motd.sh.j2
+      dest: /etc/motd.sh
+      mode: "0755"
+    when: motd_script.enabled|bool == true
+
+  - name: Enable motd script
+    lineinfile:
+      dest: /etc/profile
+      regexp: "^/etc/motd.sh"
+      line: /etc/motd.sh
+      state: present
+    become: true
+    when: motd_script.enabled|bool == true
+
+  - name: Disable motd script
+    lineinfile:
+      dest: /etc/profile
+      regexp: "^/etc/motd.sh"
+      line: /etc/motd.sh
+      state: absent
+    become: true
+    when: motd_script.enabled|bool == false
+
+  when: motd_script is defined and motd_script.enabled
