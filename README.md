@@ -85,12 +85,10 @@ playbooks/
     local.yml
     group_vars/
       all.yml
-    host_vars/
-      hhh.yml
   host_hhh/
     local.yml
-    group_vars/
-      all.yml
+    host_vars/
+      hhh.yml
   function_fff/
     local.yml
 ```
