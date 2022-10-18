@@ -1,4 +1,11 @@
-# JamLab Ansible Management
+<p align="center">
+  <a href="https://jamfox.dev">
+    <img alt="JF" src="https://raw.githubusercontent.com/JamFox/JamFox/main/images/icon.png" width="60" />
+  </a>
+</p>
+<h1 align="center">
+JamLab Ansible Management
+</h1>
 
 Ansible playbooks for configuration management in pull mode.
 
