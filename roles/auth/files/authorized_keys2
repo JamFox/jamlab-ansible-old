@@ -1,2 +1,3 @@
 # Managed by jamlab-ansible
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILayJ7ZP6Z6IDms4ujnz9nRnAJEIXwyto1SbSwfzjqst jamfox
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIzsKdLf8qhB6yYcW/AS+bS0/U8M+I31d4G+1MD9Z0is jamsvc

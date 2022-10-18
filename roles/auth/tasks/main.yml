@@ -6,15 +6,24 @@
     dest: /etc/ssh/sshd_config
   notify: Restart sshd service
 
-- name: Copy authorized_keys2 to root
+- name: Configure .ssh for root
   ansible.builtin.copy:
-    src: authorized_keys2
-    dest: /root/.ssh/authorized_keys2
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode|default('0644') }}"
+  loop:
+  - { src: authorized_keys2, dest: /root/.ssh/authorized_keys2, mode: "0700" }
+  - { src: jamsvc.pub, dest: /root/.ssh/jamsvc.pub, mode: "0644" }
+  - { src: jamsvc.enc, dest: /root/.ssh/jamsvc, mode: "0600" }
+  no_log: true
 
 - name: Create .ssh directory for admin user(s)
   ansible.builtin.file:
     path: "/home/{{ item.username }}/.ssh"
     state: directory
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: "0700"
   loop: "{{ admins }}"
   no_log: true
 
