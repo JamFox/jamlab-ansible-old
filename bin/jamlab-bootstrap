@@ -1,4 +1,4 @@
-!#/bin/bash
+#!/bin/bash
 # Purpose: Set up first hypervisor for running ansible for the first time 
 
 # Color codes
