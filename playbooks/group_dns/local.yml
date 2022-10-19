@@ -1,5 +1,5 @@
-- name: PLAYBOOK FOR GROUP 'BASE'
-  hosts: base
+- name: PLAYBOOK FOR GROUP 'DNS'
+  hosts: dns
 
   roles:
 
