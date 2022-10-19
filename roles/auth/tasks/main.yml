@@ -19,20 +19,16 @@
 
 - name: Create .ssh directory for admin user(s)
   ansible.builtin.file:
-    path: "/home/{{ item.username }}/.ssh"
+    path: "/home/{{ admin_username }}/.ssh"
     state: directory
-    owner: "{{ item.username }}"
-    group: "{{ item.username }}"
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
     mode: "0700"
-  loop: "{{ admins }}"
-  no_log: true
 
 - name: Copy authorized_keys2 to admin user(s)
   ansible.builtin.copy:
     src: authorized_keys2
-    dest: "/home/{{ item.username }}/.ssh/authorized_keys2"
-  loop: "{{ admins }}"
-  no_log: true
+    dest: "/home/{{ admin_username }}/.ssh/authorized_keys2"
 
 # FAIL2BAN
 

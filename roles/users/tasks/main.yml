@@ -72,86 +72,76 @@
 
 # SUDO
 
-- name: Ensure sudo_group exists
-  ansible.builtin.group:
-    name: "{{ sudo_group }}"
-    state: present
+- name: Set up sudo group if defined
+  block:
 
-- name: Allow sudo_group to have passwordless sudo
-  ansible.builtin.lineinfile:
-    path: /etc/sudoers
-    state: present
-    regexp: '^%{{ sudo_group }}'
-    line: '%{{ sudo_group }} ALL=(ALL) NOPASSWD: ALL'
-    validate: '/usr/sbin/visudo -cf %s'
+  - name: Ensure sudo_group exists
+    ansible.builtin.group:
+      name: "{{ sudo_group }}"
+      state: present
+
+  - name: Allow sudo_group to have passwordless sudo
+    ansible.builtin.lineinfile:
+      path: /etc/sudoers
+      state: present
+      regexp: '^%{{ sudo_group }}'
+      line: '%{{ sudo_group }} ALL=(ALL) NOPASSWD: ALL'
+      validate: '/usr/sbin/visudo -cf %s'
+
+  when: sudo_group is defined
 
 # ADMIN
 
 - name: Set up admin account if defined
   block:
-    
+ 
   - name: Create admin user(s)
     ansible.builtin.user:
-      name: "{{ item.username }}"
-      password: "{{ item.password | password_hash('sha512') }}"
+      name: "{{ admin_username }}"
+      password: "{{ admin_password | string | password_hash('sha512') }}"
       groups: 
         - "{{ sudo_group }}"
         - users
       state: present
-    loop: "{{ admins }}"
     no_log: true
 
   - name: Set the default shell
     ansible.builtin.user:
-      name: "{{ item.username }}"
-      shell: "{{ item.shell }}"
-    loop: "{{ admins }}"
-    no_log: true
+      name: "{{ admin_username }}"
+      shell: "{{ default_shell }}"
 
   - name: Ensure group for admin user(s) exists
     ansible.builtin.group:
-      name: "{{ item.username }}"
+      name: "{{ admin_username }}"
       state: present
-    loop: "{{ admins }}"
-    no_log: true
 
   - name: Chmod the admin home directories
     ansible.builtin.file:
-      path: "/home/{{ item.username }}"
+      path: "/home/{{ admin_username }}"
       state: directory
       mode: 0755
-      owner: "{{ item.username }}"
-      group: "{{ item.username }}"
+      owner: "{{ admin_username }}"
+      group: "{{ admin_username }}"
       recurse: yes
-    loop: "{{ admins }}"
-    no_log: true
 
   - name: Copy .bash_profile for admin user(s)
     ansible.builtin.copy:
       src: .bash_profile
-      dest: "/home/{{ item.username }}/.bash_profile"
-    loop: "{{ admins }}"
-    no_log: true
+      dest: "/home/{{ admin_username }}/.bash_profile"
 
   - name: Copy .bashrc for admin user(s)
     ansible.builtin.copy:
       src: .bashrc
-      dest: "/home/{{ item.username }}/.bashrc"
-    loop: "{{ admins }}"
-    no_log: true
+      dest: "/home/{{ admin_username }}/.bashrc"
 
   - name: Copy .gitconfig for admin user(s)
     ansible.builtin.copy:
       src: .gitconfig
-      dest: "/home/{{ item.username }}/.gitconfig"
-    loop: "{{ admins }}"
-    no_log: true
+      dest: "/home/{{ admin_username }}/.gitconfig"
 
   - name: Copy .tmux.conf for admin user(s)
     ansible.builtin.copy:
       src: .tmux.conf
-      dest: "/home/{{ item.username }}/.tmux.conf"
-    loop: "{{ admins }}"
-    no_log: true
+      dest: "/home/{{ admin_username }}/.tmux.conf"
 
-  when: (admins is defined) and (admins is iterable)
+  when: (admin_username is defined) and (admin_password is defined)
