@@ -24,21 +24,6 @@ then
     exit 1
 fi
 
-# Check OS
-if [[ -e /etc/os-release ]]
-then
-    source /etc/os-release
-    [[ $ID == debian ]] && os=debian
-else
-    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to read /etc/os-release" >&2
-    exit 1
-fi
-if [[ -z $os ]]
-then
-    echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] $0 may only run on debian" >&2
-    exit 1
-fi
-
 # Check that there is no other running instance of this script
 script_name=$(basename $0)
 if [[ $(pidof -x $script_name) != $$ ]]
