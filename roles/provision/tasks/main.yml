@@ -1,5 +1,11 @@
+- name: Get latest jamlab-packer
+  ansible.builtin.git:
+    repo: https://github.com/JamFox/jamlab-packer.git
+    dest: /root/provision/jamlab-packer
+    version: main
+
 - name: Get latest jamlab-terraform
   ansible.builtin.git:
-    repo: git@github.com:JamFox/jamlab-terraform.git
-    dest: /root/jamlab-terraform
+    repo: https://github.com/JamFox/jamlab-terraform.git
+    dest: /root/provision/jamlab-terraform
     version: main
