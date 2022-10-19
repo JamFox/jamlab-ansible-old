@@ -31,7 +31,7 @@ apt update && apt upgrade -y
 apt install vim git ansible jq -y 
 
 # Check for ansible vault pass
-ANSIBLE_VAULT_PASS=/root/.ansible-vault
+ANSIBLE_VAULT_PASS=/root/.ansible-vault-pass
 if [[ ! -e $ANSIBLE_VAULT_PASS ]]
 then
     echo -e "[ ${COLOR_RED_BOLD}FATAL${COLOR_RESET} ] Unable to read ansible vault pass from $ANSIBLE_VAULT_PASS" >&2
