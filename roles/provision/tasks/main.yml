@@ -1,6 +1,5 @@
-- name: Make sure latest jamlab-terraform is in /opt
+- name: Get latest jamlab-terraform
   ansible.builtin.git:
     repo: git@github.com:JamFox/jamlab-terraform.git
     dest: /root/jamlab-terraform
-    single_branch: yes
     version: main

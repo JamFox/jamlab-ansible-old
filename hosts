@@ -1,2 +1,5 @@
 [base]
-sol
+pve0
+
+[dns]
+rpi0
