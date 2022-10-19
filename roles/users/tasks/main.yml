@@ -1,3 +1,26 @@
+# SECRETS
+
+- name: Check if sops exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/sops
+  register: r_sops
+
+- name: Check if newer sops exists
+  ansible.builtin.shell: |
+    latest_sops_url=$(curl -s https://api.github.com/repos/mozilla/sops/releases/latest | jq -r ".assets[] | select(.name | test(\"amd64.deb\")) | .browser_download_url" | cut -d "_" -f 2)
+    current_sops_ver=$(/usr/local/bin/sops -v | cut -d " " -f 2)
+    case "$current_sops_ver" in $latest_sops_url ) echo "latest";; *) echo "outdated";; esac
+  register: r_sops_ver
+  when: r_sops.stat.exists
+
+- name: Get latest sops
+  ansible.builtin.shell: |
+    latest_sops_url=$(curl -s https://api.github.com/repos/mozilla/sops/releases/latest | jq -r ".assets[] | select(.name | test(\"amd64.deb\")) | .browser_download_url")
+    wget -P /tmp $latest_sops_url
+    apt install /tmp/"${latest_sops_url##*/}"
+    rm /tmp/"${latest_sops_url##*/}"
+  when: not r_sops.stat.exists or r_sops_ver.stdout != "latest"
+
 # ROOT
 
 - name: Copy defaults for root user
@@ -9,6 +32,43 @@
   - { src: .bash_profile, dest: /root/.bash_profile }
   - { src: .gitconfig, dest: /root/.gitconfig }
   - { src: .tmux.conf, dest: /root/.tmux.conf }
+
+- name: Check for pgp key
+  ansible.builtin.stat:
+    path: /root/.pgp/private.key
+  register: r_pgp_keys
+
+- name: Set pgp keys
+  block:
+
+  - name: Create pgp dir
+    ansible.builtin.file:
+      path: /root/.pgp
+      state: directory
+      mode: "0700"
+
+  - name: Copy pgp keys
+    ansible.builtin.copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      mode: "{{ item.mode|default('0600') }}"
+    loop:
+    - { src: private.key.enc, dest: /root/.pgp/private.key, mode: "0600" }
+    - { src: public.key.enc, dest: /root/.pgp/public.key, mode: "0644" }
+    no_log: true
+
+  - name: Import pgp keys to gpg
+    ansible.builtin.shell: |
+      gpg --import /root/.pgp/private.key
+      gpg --import /root/.pgp/public.key
+    no_log: true
+
+  when: not r_pgp_keys.stat.exists
+
+- name: Copy sops config for root
+  ansible.builtin.copy:
+    src: .sops.yaml
+    dest: /root/.sops.yaml
 
 # SUDO
 
