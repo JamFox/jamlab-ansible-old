@@ -10,4 +10,8 @@ admin_password: !vault |
 
 sudo_group: sudo
 
-pve_main_ip: 192.168.0.100
+pve_ip: 192.168.0.100
+pve_port: 8006
+pve_api_endpoint: /api2/json
+pve_api_user: jamlab-terraform
+pve_api_pass: 
