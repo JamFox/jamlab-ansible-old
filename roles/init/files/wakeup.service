@@ -6,6 +6,8 @@ After=network-online.target
 
 [Service]
 Type=oneshot
+StandardOutput=file:/var/log/wakeup.log
+ExecStartPre=/usr/bin/truncate --size=0 /var/log/wakeup.log
 ExecStart=/etc/systemd/scripts/wakeup.sh
 
 [Install]
