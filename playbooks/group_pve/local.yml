@@ -1,7 +1,8 @@
-- name: PLAYBOOK FOR GROUP 'BASE'
-  hosts: base
+- name: PLAYBOOK FOR GROUP 'pve'
+  hosts: pve
 
   roles:
 
+  - { role: proxmox, tags: [ proxmox ], when: not (disabled_roles.proxmox | default(false)) }
   - { role: pre, tags: [ pre ], when: not (disabled_roles.pre | default(false)) }
   - { role: provision, tags: [ provision ], when: not (disabled_roles.provision | default(false)) }
