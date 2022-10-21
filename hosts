@@ -7,3 +7,9 @@ rpi0
 [vm_base]
 vb0
 vb1
+vb2
+
+[vm_svc]
+vs0
+vs1
+vs2
