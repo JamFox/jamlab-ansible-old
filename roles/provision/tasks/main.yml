@@ -23,6 +23,6 @@
 
 - name: Build base vm template
   ansible.builtin.shell: |
-    "cd {{ provision_dir }}/jamlab-packer/{{ vm_template_name }}"
-    "PACKER_LOG=1 packer build -var-file {{ pve_connection_hcl_location }} {{ vm_template_name }}.pkr.hcl > /var/log/vm-template-build.log 2>&1"
+    cd "{{ provision_dir }}"/jamlab-packer/"{{ vm_template_name }}"
+    PACKER_LOG=1 /usr/bin/packer build -var-file "{{ pve_connection_hcl_location }}" "{{ vm_template_name }}".pkr.hcl > /var/log/vm-template-build.log 2>&1
   when: r_vm_template_exists.stdout != "true"

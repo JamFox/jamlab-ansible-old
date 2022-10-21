@@ -1,11 +1,11 @@
 - name: Add Hashicorp GPG key
   ansible.builtin.get_url:
     url: https://apt.releases.hashicorp.com/gpg
-    dest: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    dest: /usr/share/keyrings/hashicorp-archive-keyring.asc
 
 - name: Add Hashicorp source
   ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
     state: present
 
 - name: Add PVE source

@@ -3,3 +3,6 @@ pve0
 
 [dns]
 rpi0
+
+[vm_base]
+vb0
