@@ -1,0 +1,6 @@
+- name: PLAYBOOK FOR GROUP 'VM_BASE'
+  hosts: vm_base
+
+  roles:
+
+  - { role: pre, tags: [ pre ], when: not (disabled_roles.pre | default(false)) }
