@@ -9,4 +9,11 @@
     repo: https://github.com/JamFox/jamlab-terraform.git
     dest: /root/provision/jamlab-terraform
     version: main
+
+- name:
+  ansible.builtin.template:
+    src: pve.hcl.j2
+    dest: /root/pve.hcl
+    mode: "0700"
+  no_log: true
   
