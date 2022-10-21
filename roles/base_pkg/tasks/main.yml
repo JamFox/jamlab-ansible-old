@@ -42,9 +42,4 @@
       - file
       - gpg
       - sudo
-      - terraform
-      - packer
-      - vault
-      - consul
-      - nomad
     state: latest

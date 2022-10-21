@@ -1,0 +1,5 @@
+- name: Install extra packages
+  ansible.builtin.apt:
+    name: "{{ extra_pkgs }}"
+    state: latest
+  when: extra_pkgs is defined

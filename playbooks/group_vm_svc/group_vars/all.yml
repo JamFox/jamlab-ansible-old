@@ -1,0 +1,6 @@
+extra_pkgs:
+  - terraform
+  - packer
+  - vault
+  - consul
+  - nomad

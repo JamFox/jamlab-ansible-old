@@ -15,6 +15,14 @@
   when: not (disabled_roles.base_pkg | default(false))
   tags: always
 
+- name: Include extra_pkg role
+  ansible.builtin.include_role:
+    name: extra_pkg
+    apply:
+      tags: [ extra_pkg ]
+  when: not (disabled_roles.extra_pkg | default(false))
+  tags: always
+
 - name: Include motd role
   ansible.builtin.include_role:
     name: motd
