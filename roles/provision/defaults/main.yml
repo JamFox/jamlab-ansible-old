@@ -1,0 +1,3 @@
+pve_connection_hcl_location: /root/pve.hcl
+provision_dir: /root/provision
+vm_template_name: debian11
