@@ -26,3 +26,9 @@
     cd "{{ provision_dir }}"/jamlab-packer/"{{ vm_template_name }}"
     PACKER_LOG=1 /usr/bin/packer build -var-file "{{ pve_connection_hcl_location }}" "{{ vm_template_name }}".pkr.hcl > /var/log/vm-template-build.log 2>&1
   when: r_vm_template_exists.stdout != "true"
+
+- name: Provision vms
+  ansible.builtin.shell: |
+    cd "{{ provision_dir }}"/jamlab-terraform
+    terraform apply -var-file "{{ pve_connection_hcl_location }}" -auto-approve > /var/log/vm-provision.log 2>&1
+  when: r_vm_template_exists.stdout != "true"
