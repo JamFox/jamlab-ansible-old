@@ -30,5 +30,6 @@
 - name: Provision vms
   ansible.builtin.shell: |
     cd "{{ provision_dir }}"/jamlab-terraform
+    terraform init
     terraform apply -var-file "{{ pve_connection_hcl_location }}" -auto-approve > /var/log/vm-provision.log 2>&1
   when: r_vm_template_exists.stdout != "true"
