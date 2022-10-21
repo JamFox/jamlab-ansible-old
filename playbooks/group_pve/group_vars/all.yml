@@ -4,3 +4,10 @@ extra_pkgs:
   - vault
   - consul
   - nomad
+
+extra_sources: 
+  - key_url: https://apt.releases.hashicorp.com/gpg
+    key_dest: /usr/share/keyrings/hashicorp-archive-keyring.asc
+    dist: deb
+    repo_url: https://apt.releases.hashicorp.com
+    repo_name: main
