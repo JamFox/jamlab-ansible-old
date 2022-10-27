@@ -9,16 +9,3 @@ data_dir = "/opt/nomad"
         {%- include 'nomad_client.hcl.j2' %}
     {% endif %}
 {% endif %}
-
-
-tls {
-  http = true
-  rpc  = true
-
-  ca_file   = "/etc/nomad.d/nomad-agent-ca.pem"
-  key_file  = "/etc/nomad.d/dc1-server-nomad-0-key.pem"
-  cert_file = "/etc/nomad.d/dc1-server-nomad-0.pem"
-
-  verify_server_hostname = true
-  verify_https_client    = true
-}

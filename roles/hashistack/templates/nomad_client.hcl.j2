@@ -1,3 +1,15 @@
 client {
   enabled = true
 }
+
+tls {
+  http = true
+  rpc  = true
+
+  ca_file   = "/etc/nomad.d/nomad-ca.pem"
+  key_file  = "/etc/nomad.d/nomad-client-key.pem"
+  cert_file = "/etc/nomad.d/nomad-client.pem"
+
+  verify_server_hostname = true
+  verify_https_client    = true
+}

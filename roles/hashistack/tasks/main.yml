@@ -38,14 +38,13 @@
       owner: "{{ item.owner }}"
       group: "{{ item.owner }}"
     loop:
-    - { src: consul-agent-ca-key.pem.enc, dest: /etc/consul.d/consul-agent-ca-key.pem, owner: consul }
     - { src: consul-agent-ca.pem.enc, dest: /etc/consul.d/consul-agent-ca.pem, owner: consul }
     - { src: dc1-server-consul-0-key.pem.enc, dest: /etc/consul.d/dc1-server-consul-0-key.pem, owner: consul }
     - { src: dc1-server-consul-0.pem.enc, dest: /etc/consul.d/dc1-server-consul-0.pem, owner: consul }
-    - { src: consul-agent-ca-key.pem.enc, dest: /etc/nomad.d/nomad-agent-ca-key.pem, owner: nomad }
-    - { src: consul-agent-ca.pem.enc, dest: /etc/nomad.d/nomad-agent-ca.pem, owner: nomad }
-    - { src: dc1-server-consul-0-key.pem.enc, dest: /etc/nomad.d/dc1-server-nomad-0-key.pem, owner: nomad }
-    - { src: dc1-server-consul-0.pem.enc, dest: /etc/nomad.d/dc1-server-nomad-0.pem, owner: nomad }
+    - { src: nomad-ca.pem.enc, dest: /etc/nomad.d/nomad-ca.pem, owner: nomad }
+    - { src: nomad-server.pem.enc, dest: /etc/nomad.d/nomad-server.pem, owner: nomad }
+    - { src: nomad-server-key.pem.enc, dest: /etc/nomad.d/nomad-server-key.pem, owner: nomad }
+
 
   when: (hashistack is defined) and (hashistack == "server")
 
@@ -63,9 +62,9 @@
       group: "{{ item.owner }}"
     loop:
     - { src: consul-agent-ca.pem.enc, dest: /etc/consul.d/consul-agent-ca.pem, owner: consul }
-    - { src: consul-agent-ca.pem.enc, dest: /etc/nomad.d/nomad-agent-ca.pem, owner: nomad }
-    - { src: dc1-server-consul-0-key.pem.enc, dest: /etc/nomad.d/dc1-server-nomad-0-key.pem, owner: nomad }
-    - { src: dc1-server-consul-0.pem.enc, dest: /etc/nomad.d/dc1-server-nomad-0.pem, owner: nomad }
+    - { src: nomad-ca.pem.enc, dest: /etc/nomad.d/nomad-ca.pem, owner: nomad }
+    - { src: nomad-client.pem.enc, dest: /etc/nomad.d/nomad-client.pem, owner: nomad }
+    - { src: nomad-client-key.pem.enc, dest: /etc/nomad.d/nomad-client-key.pem, owner: nomad }
 
   when: (hashistack is defined) and (hashistack == "client")
 
@@ -79,16 +78,16 @@
   - consul.service
   - nomad.service
 
-- name: Enable and start consul
+- name: Enable and restart consul
   ansible.builtin.systemd:
     name: consul.service
-    state: started
+    state: restarted
     enabled: true
     daemon_reload: true
 
-- name: Enable and start nomad
+- name: Enable and restart nomad
   ansible.builtin.systemd:
     name: nomad.service
-    state: started
+    state: restarted
     enabled: true
     daemon_reload: true
