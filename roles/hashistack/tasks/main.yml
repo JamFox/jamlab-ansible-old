@@ -30,15 +30,15 @@
   - name: Copy hashistack server files
     ansible.builtin.copy:
       src: "{{ item.src }}"
-      dest: /etc/consul.d/
+      dest: "{{ item.dest }}"
       mode: "{{ item.mode|default('0640') }}"
-      owner: consul
-      group: consul
+      owner: "{{ item.owner }}"
+      group: "{{ item.owner }}"
     loop:
-    - { src: consul-agent-ca-key.pem }
-    - { src: consul-agent-ca.pem }
-    - { src: dc1-server-consul-0-key.pem }
-    - { src: dc1-server-consul-0.pem }
+    - { src: consul-agent-ca-key.pem, dest: /etc/consul.d/, owner: consul }
+    - { src: consul-agent-ca.pem, dest: /etc/consul.d/, owner: consul }
+    - { src: dc1-server-consul-0-key.pem, dest: /etc/consul.d/, owner: consul }
+    - { src: dc1-server-consul-0.pem, dest: /etc/consul.d/, owner: consul }
 
   when: (hashistack is defined) and (hashistack == "server")
 
@@ -50,12 +50,12 @@
   - name: Copy hashistack client files
     ansible.builtin.copy:
       src: "{{ item.src }}"
-      dest: /etc/consul.d/
+      dest: "{{ item.dest }}"
       mode: "{{ item.mode|default('0640') }}"
-      owner: consul
-      group: consul
+      owner: "{{ item.owner }}"
+      group: "{{ item.owner }}"
     loop:
-    - { src: consul-agent-ca.pem }
+    - { src: consul-agent-ca.pem, dest: /etc/consul.d/, owner: consul }
 
   when: (hashistack is defined) and (hashistack == "client")
 
