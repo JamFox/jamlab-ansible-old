@@ -11,3 +11,5 @@ extra_sources:
     dist: deb
     repo_url: https://apt.releases.hashicorp.com
     repo_name: main
+
+hashistack: client

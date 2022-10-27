@@ -1,0 +1,28 @@
+ca_file = "/etc/consul.d/consul-agent-ca.pem"
+cert_file = "/etc/consul.d/dc1-server-consul-0.pem"
+key_file = "/etc/consul.d/dc1-server-consul-0-key.pem"
+
+auto_encrypt {
+  allow_tls = true
+}
+
+server = true
+bootstrap_expect = 3
+
+client_addr = "0.0.0.0"
+
+connect {
+  enabled = true
+}
+
+addresses {
+  grpc = "127.0.0.1"
+}
+
+ports {
+  grpc  = 8502
+}
+
+ui_config {
+  enabled = true
+}

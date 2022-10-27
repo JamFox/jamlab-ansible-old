@@ -1,0 +1,76 @@
+# HASHISTACK ALL
+
+- name: Create hashistack dirs
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.owner }}"
+    mode: "{{ item.mode|default('0770') }}"
+    recurse: true
+  loop:
+  - { path: /etc/consul.d/, owner: consul }
+  - { path: /opt/consul/, owner: consul }
+
+- name: Create hashistack configs
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.owner }}"
+    mode: "{{ item.mode|default('0640') }}"
+  loop:
+  - { src: consul.hcl.j2, dest: /etc/consul.d/consul.hcl, owner: consul }
+
+# HASHISTACK SERVER
+
+- name: Configure Hashistack Server
+  block:
+
+  - name: Copy hashistack server files
+    ansible.builtin.copy:
+      src: "{{ item.src }}"
+      dest: /etc/consul.d/
+      mode: "{{ item.mode|default('0640') }}"
+      owner: consul
+      group: consul
+    loop:
+    - { src: consul-agent-ca-key.pem }
+    - { src: consul-agent-ca.pem }
+    - { src: dc1-server-consul-0-key.pem }
+    - { src: dc1-server-consul-0.pem }
+
+  when: (hashistack is defined) and (hashistack == "server")
+
+# HASHISTACK CLIENT
+
+- name: Configure Hashistack Client
+  block:
+
+  - name: Copy hashistack client files
+    ansible.builtin.copy:
+      src: "{{ item.src }}"
+      dest: /etc/consul.d/
+      mode: "{{ item.mode|default('0640') }}"
+      owner: consul
+      group: consul
+    loop:
+    - { src: consul-agent-ca.pem }
+
+  when: (hashistack is defined) and (hashistack == "client")
+
+# HASHISTACK ALL CONTINUED
+
+- name: Copy hashistack services
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /etc/systemd/system/
+  loop:
+  - consul.service
+
+- name: Enable and start consul
+  ansible.builtin.systemd:
+    name: consul.service
+    state: started
+    enabled: true
+    daemon_reload: true
