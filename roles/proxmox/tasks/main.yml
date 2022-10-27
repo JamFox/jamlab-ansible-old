@@ -2,3 +2,8 @@
   ansible.builtin.apt_repository:
     repo: "deb http://download.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-no-subscription"
     state: present
+
+- name: Remove pve enterprise sources
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/pve-enterprise.list
+    state: absent
