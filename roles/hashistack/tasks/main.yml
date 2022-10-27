@@ -55,7 +55,7 @@
       owner: "{{ item.owner }}"
       group: "{{ item.owner }}"
     loop:
-    - { src: consul-agent-ca.pem, dest: /etc/consul.d/, owner: consul }
+    - { src: consul-agent-ca.pem.enc, dest: /etc/consul.d/consul-agent-ca.pem, owner: consul }
 
   when: (hashistack is defined) and (hashistack == "client")
 
