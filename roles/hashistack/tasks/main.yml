@@ -35,10 +35,10 @@
       owner: "{{ item.owner }}"
       group: "{{ item.owner }}"
     loop:
-    - { src: consul-agent-ca-key.pem, dest: /etc/consul.d/, owner: consul }
-    - { src: consul-agent-ca.pem, dest: /etc/consul.d/, owner: consul }
-    - { src: dc1-server-consul-0-key.pem, dest: /etc/consul.d/, owner: consul }
-    - { src: dc1-server-consul-0.pem, dest: /etc/consul.d/, owner: consul }
+    - { src: consul-agent-ca-key.pem.enc, dest: /etc/consul.d/consul-agent-ca-key.pem, owner: consul }
+    - { src: consul-agent-ca.pem.enc, dest: /etc/consul.d/consul-agent-ca.pem, owner: consul }
+    - { src: dc1-server-consul-0-key.pem.enc, dest: /etc/consul.d/dc1-server-consul-0-key.pem, owner: consul }
+    - { src: dc1-server-consul-0.pem.enc, dest: /etc/consul.d/dc1-server-consul-0.pem, owner: consul }
 
   when: (hashistack is defined) and (hashistack == "server")
 
