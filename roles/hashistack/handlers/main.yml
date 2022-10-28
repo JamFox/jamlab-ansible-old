@@ -1,0 +1,13 @@
+- name: enable and restart consul
+  ansible.builtin.systemd:
+    name: consul.service
+    state: restarted
+    enabled: true
+    daemon_reload: true
+
+- name: enable and restart nomad
+  ansible.builtin.systemd:
+    name: nomad.service
+    state: restarted
+    enabled: true
+    daemon_reload: true

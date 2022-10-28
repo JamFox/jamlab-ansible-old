@@ -7,12 +7,14 @@
     owner: "{{ item.owner }}"
     group: "{{ item.owner }}"
     mode: "{{ item.mode|default('0700') }}"
-    recurse: true
   loop:
   - { path: /etc/consul.d/, owner: consul }
   - { path: /opt/consul/, owner: consul }
   - { path: /etc/nomad.d/, owner: nomad }
   - { path: /opt/nomad/, owner: nomad }
+  notify: 
+    - enable and restart consul
+    - enable and restart nomad
 
 - name: Create hashistack configs
   ansible.builtin.template:
@@ -24,6 +26,9 @@
   loop:
   - { src: consul.hcl.j2, dest: /etc/consul.d/consul.hcl, owner: consul }
   - { src: nomad.hcl.j2, dest: /etc/nomad.d/nomad.hcl, owner: nomad }
+  notify: 
+    - enable and restart consul
+    - enable and restart nomad
 
 # HASHISTACK SERVER
 
@@ -44,7 +49,9 @@
     - { src: nomad-ca.pem.enc, dest: /etc/nomad.d/nomad-ca.pem, owner: nomad }
     - { src: nomad-server.pem.enc, dest: /etc/nomad.d/nomad-server.pem, owner: nomad }
     - { src: nomad-server-key.pem.enc, dest: /etc/nomad.d/nomad-server-key.pem, owner: nomad }
-
+    notify: 
+      - enable and restart consul
+      - enable and restart nomad
 
   when: (hashistack is defined) and (hashistack == "server")
 
@@ -65,6 +72,9 @@
     - { src: nomad-ca.pem.enc, dest: /etc/nomad.d/nomad-ca.pem, owner: nomad }
     - { src: nomad-client.pem.enc, dest: /etc/nomad.d/nomad-client.pem, owner: nomad }
     - { src: nomad-client-key.pem.enc, dest: /etc/nomad.d/nomad-client-key.pem, owner: nomad }
+    notify: 
+      - enable and restart consul
+      - enable and restart nomad
 
   # CNI 
 
@@ -117,30 +127,14 @@
 
 # HASHISTACK ALL CONTINUED
 
-- name: Copy hashistack services
+- name: Copy consul service
   ansible.builtin.copy:
-    src: "{{ item }}"
+    src: consul.service
     dest: /etc/systemd/system/
-  loop:
-  - consul.service
+  notify: enable and restart consul
 
-- name: Template hashistack services
+- name: Copy nomad service
   ansible.builtin.template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-  loop:
-  - { src: nomad.service.j2, dest: /etc/systemd/system/nomad.service }
-
-- name: Enable and restart consul
-  ansible.builtin.systemd:
-    name: consul.service
-    state: restarted
-    enabled: true
-    daemon_reload: true
-
-- name: Enable and restart nomad
-  ansible.builtin.systemd:
-    name: nomad.service
-    state: restarted
-    enabled: true
-    daemon_reload: true
+    src: nomad.service.j2
+    dest: /etc/systemd/system/nomad.service
+  notify: enable and restart nomad
