@@ -15,8 +15,16 @@ After=consul.service
 
 # Nomad server should be run as the nomad user. Nomad clients
 # should be run as root
+{% if hashistack is defined %}
+{%- if hashistack == 'server' %}
 User=nomad
 Group=nomad
+{%- elif hashistack == 'client' %}
+User=root
+Group=root
+{% endif %}
+{% endif %}
+
 
 ExecReload=/bin/kill -HUP $MAINPID
 ExecStart=/usr/bin/nomad agent -config /etc/nomad.d

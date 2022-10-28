@@ -1,13 +1,13 @@
 extra_pkgs:
+  - docker-ce 
+  - docker-ce-cli 
+  - containerd.io 
+  - docker-compose-plugin
   - terraform
   - packer
   - vault
   - consul
   - nomad
-  - docker-ce 
-  - docker-ce-cli 
-  - containerd.io 
-  - docker-compose-plugin
 
 extra_sources: 
   - key_url: https://apt.releases.hashicorp.com/gpg
