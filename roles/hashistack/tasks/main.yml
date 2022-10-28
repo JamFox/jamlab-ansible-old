@@ -66,6 +66,29 @@
     - { src: nomad-client.pem.enc, dest: /etc/nomad.d/nomad-client.pem, owner: nomad }
     - { src: nomad-client-key.pem.enc, dest: /etc/nomad.d/nomad-client-key.pem, owner: nomad }
 
+  - name: Check if cni exists
+    ansible.builtin.stat:
+      path: /opt/cni/bin/bridge
+    register: r_cni
+
+  - name: Check if newer cni exists
+    ansible.builtin.shell: |
+      latest_tag=$(curl -s https://api.github.com/repos/containernetworking/plugins/releases/latest | jq -r ".tag_name")
+      current_ver=$(/opt/cni/bin/bridge 2>&1 | cut -d " " -f 4)
+      case "$current_ver" in ${latest_tag} ) echo "latest";; *) echo "outdated";; esac
+    register: r_cni_ver
+    when: r_cni.stat.exists
+
+  - name: Get latest cni
+    ansible.builtin.shell: |
+      latest_tag=$(curl -s https://api.github.com/repos/containernetworking/plugins/releases/latest | jq -r ".tag_name")
+      latest_url=https://github.com/containernetworking/plugins/releases/download/${latest_tag}/cni-plugins-linux-amd64-${latest_tag}.tgz
+      wget -P /tmp $latest_url
+      mkdir -p /opt/cni/bin
+      tar -C /opt/cni/bin -xzf /tmp/"${latest_url##*/}"
+      rm /tmp/"${latest_url##*/}"
+    when: not r_cni.stat.exists or r_cni_ver.stdout != "latest"
+
   when: (hashistack is defined) and (hashistack == "client")
 
 # HASHISTACK ALL CONTINUED
