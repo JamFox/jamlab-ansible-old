@@ -9,3 +9,9 @@ data_dir = "/opt/nomad"
         {%- include 'nomad_client.hcl.j2' %}
     {% endif %}
 {% endif %}
+
+telemetry {
+  prometheus_metrics         = true
+  publish_allocation_metrics = true
+  publish_node_metrics       = true
+}
