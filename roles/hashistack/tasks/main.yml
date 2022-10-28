@@ -66,6 +66,30 @@
     - { src: nomad-client.pem.enc, dest: /etc/nomad.d/nomad-client.pem, owner: nomad }
     - { src: nomad-client-key.pem.enc, dest: /etc/nomad.d/nomad-client-key.pem, owner: nomad }
 
+  # CNI 
+
+  - name: Create cni bridge directory
+    ansible.builtin.file:
+      path: /proc/sys/net/bridge
+      state: directory
+
+  - name: Enable cni bridge files
+    ansible.builtin.copy:
+      dest: /etc/mine.conf
+      content: '1'
+    loop:
+    - { dest: /proc/sys/net/bridge/bridge-nf-call-arptables }
+    - { dest: /proc/sys/net/bridge/bridge-nf-call-ip6tables }
+    - { dest: /proc/sys/net/bridge/bridge-nf-call-iptables }
+
+  - name: Create cni.conf
+    ansible.builtin.copy:
+      dest: /etc/sysctl.d/cni.conf
+      content: |
+        net.bridge.bridge-nf-call-arptables = 1
+        net.bridge.bridge-nf-call-ip6tables = 1
+        net.bridge.bridge-nf-call-iptables = 1
+
   - name: Check if cni exists
     ansible.builtin.stat:
       path: /opt/cni/bin/bridge
