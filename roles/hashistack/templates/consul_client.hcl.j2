@@ -1,4 +1,14 @@
-ca_file = "/etc/consul.d/consul-agent-ca.pem"
+tls {
+  defaults {
+    ca_file = "/etc/consul.d/consul-agent-ca.pem"
+    verify_incoming = true
+    verify_outgoing = true
+  }
+
+  internal_rpc {
+    verify_server_hostname = true
+  }
+}
 
 auto_encrypt {
   tls = true
