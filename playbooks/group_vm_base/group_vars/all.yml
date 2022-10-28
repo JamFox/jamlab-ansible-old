@@ -4,6 +4,10 @@ extra_pkgs:
   - vault
   - consul
   - nomad
+  - docker-ce 
+  - docker-ce-cli 
+  - containerd.io 
+  - docker-compose-plugin
 
 extra_sources: 
   - key_url: https://apt.releases.hashicorp.com/gpg
@@ -11,5 +15,10 @@ extra_sources:
     dist: deb
     repo_url: https://apt.releases.hashicorp.com
     repo_name: main
+  - key_url: https://download.docker.com/linux/debian/gpg
+    key_dest: /usr/share/keyrings/docker.asc
+    dist: deb
+    repo_url: https://download.docker.com/linux/debian
+    repo_name: stable
 
 hashistack: server
