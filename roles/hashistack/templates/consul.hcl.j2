@@ -12,6 +12,14 @@ encrypt = "{{ consul_gossip_key }}"
 {% endif %}
 
 
+ports {
+  grpc = 8502
+}
+
+connect {
+  enabled = true
+}
+
 retry_join = ["vb0.jamfox.dev", "vb1.jamfox.dev", "vb2.jamfox.dev"]
 
 bind_addr = "{{ ansible_eth0.ipv4.address }}"
