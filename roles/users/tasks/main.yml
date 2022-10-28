@@ -7,9 +7,9 @@
 
 - name: Check if newer sops exists
   ansible.builtin.shell: |
-    latest_sops_url=$(curl -s https://api.github.com/repos/mozilla/sops/releases/latest | jq -r ".assets[] | select(.name | test(\"amd64.deb\")) | .browser_download_url" | cut -d "_" -f 2)
+    latest_sops_tag=$(curl -s https://api.github.com/repos/mozilla/sops/releases/latest | jq -r ".tag_name")
     current_sops_ver=$(/usr/local/bin/sops -v | cut -d " " -f 2)
-    case "$current_sops_ver" in $latest_sops_url ) echo "latest";; *) echo "outdated";; esac
+    case "$current_sops_ver" in ${latest_sops_tag#v} ) echo "latest";; *) echo "outdated";; esac
   register: r_sops_ver
   when: r_sops.stat.exists
 
