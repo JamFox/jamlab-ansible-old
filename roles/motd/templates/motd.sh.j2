@@ -85,37 +85,24 @@ fi
 # used swap memory
 swap_usage="$(free -m | awk '($1=="Swap:"){swapTotal=$2; swapUsed=$3} END{printf "%.1f%%", swapUsed/swapTotal * 100}')"
 
-# Capture top 5 processes by cpu
-top_processes_cpu="$(ps aux k-pcpu | head -6)"
-
 printf "${green}$HOSTNAME on ${date}\n"
 printf "================================================================================\n"
 
 printf "${white}OS                    :${cyan} %s\n" "${os}"
-printf "\n"
 printf "${white}CPU Load              :${cyan} %s\n" "${cpu_load}"
 printf "${white}CPU Usage             :\n"
 printf "${cyan}%s\n" "${cpu_usage}"
-printf "\n"
-printf "${white}Top 5 Processes(CPU)  :\n"
-printf "${cyan}%s\n" "${top_processes_cpu}"
-printf "\n"
 printf "${white}Memory Total          :${cyan} %s\n" "${memory_total}"
 printf "${white}Memory Free           :${cyan} %s\n" "${memory_free}"
 printf "${white}Memory Buffer/Cache   :${cyan} %s\n" "${memory_buffer_cache}"
 printf "${white}Memory Usage          :${cyan} %s\n" "${memory_usage}"
 printf "${white}Swap Usage            :${cyan} %s\n" "${swap_usage}"
-printf "\n"
-# printf "${white}Total Disk Usage      :${cyan} %s\n" "${disk_usage}"
 printf "${white}Disk Mounts           :\n"
 printf "${cyan}%s\n" "${disk_mounts}"
-printf "\n"
 printf "${white}IP Addresses          :\n"
 printf "${cyan}%s\n" "${ips}"
-printf "\n"
 printf "${white}DNS Servers           :${cyan} %s\n" "${dns_servers}"
 printf "${white}DNS Response Time     :${cyan} %s\n" "${dns_response}"
-
 printf "${white}Uptime                :${cyan} %s\n" "${uptime}"
 
 printf "${reset}"
