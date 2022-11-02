@@ -1,0 +1,6 @@
+- name: enable and restart traefik
+  ansible.builtin.systemd:
+    name: traefik.service
+    state: restarted
+    enabled: true
+    daemon_reload: true

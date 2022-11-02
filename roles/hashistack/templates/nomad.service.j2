@@ -53,5 +53,32 @@ StartLimitBurst = 5
 TasksMax=infinity
 OOMScoreAdjust=-1000
 
+# prohibit any operating system and configuration modification
+ProtectSystem=full
+# create separate, new (and empty) /tmp and /var/tmp filesystems
+PrivateTmp=true
+# make /home directories inaccessible
+ProtectHome=true
+# turns off access to physical devices (/dev/...)
+PrivateDevices=true
+# make kernel settings (procfs and sysfs) read-only
+ProtectKernelTunables=true
+# make cgroups /sys/fs/cgroup read-only
+ProtectControlGroups=true
+# stops process from changing system clock
+ProtectClock=true
+# stops process from changing hostname
+ProtectHostname=true
+# stops process of any of its children from obtaining new privileges
+NoNewPrivileges=true
+# prohibit using kernel modules
+ProtectKernelModules=true
+# prohibit writing to kernel logs
+ProtectKernelLogs=true
+# restrict setting SU/SGID on dirs/files
+RestrictSUIDSGID=true
+# restrict system call capabilities
+SystemCallFilter=@system-service
+
 [Install]
 WantedBy=multi-user.target
