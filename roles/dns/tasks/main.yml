@@ -7,10 +7,11 @@
 - name: Configure dnsmasq
   ansible.builtin.copy:
     src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
+    dest: /etc/dnsmasq.d/
   loop:
-  - { src: jamlab-dns.conf, dest: /etc/dnsmasq.d/ }
-  - { src: jamlab-records.conf, dest: /etc/dnsmasq.d/ }
+  - { src: jamlab-dns.conf }
+  - { src: jamlab-records.conf }
+  - { src: jamlab-consul.conf }
   register: r_dns_config
 
 - name: Restart dnsmasq if config changed
