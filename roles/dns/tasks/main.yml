@@ -19,4 +19,8 @@
     name: dnsmasq
     state: restarted
   when: r_dns_config.changed
-  
+
+- name: Disable systemd-resolved
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: disabled
