@@ -12,7 +12,7 @@ Type=notify
 Restart=on-failure
 User=traefik
 Group=traefik
-ExecStart=/usr/local/bin/traefik --configfile=/etc/traefik/traefik.toml
+ExecStart=/usr/local/bin/traefik --configfile=/etc/traefik/traefik.yaml
 AmbientCapabilities=CAP_NET_BIND_SERVICE
 
 # prohibit any operating system and configuration modification

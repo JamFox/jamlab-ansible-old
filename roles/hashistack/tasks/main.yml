@@ -6,11 +6,10 @@
     state: directory
     owner: "{{ item.owner }}"
     group: "{{ item.owner }}"
-    mode: "{{ item.mode|default('0700') }}"
+    mode: "{{ item.mode|default('0750') }}"
   loop:
   - { path: /etc/consul.d/, owner: consul }
   - { path: /opt/consul/, owner: consul }
-  notify: enable and restart consul
 
 - name: Create nomad dirs
   ansible.builtin.file:
@@ -18,11 +17,10 @@
     state: directory
     owner: "{{ item.owner }}"
     group: "{{ item.owner }}"
-    mode: "{{ item.mode|default('0700') }}"
+    mode: "{{ item.mode|default('0750') }}"
   loop:
   - { path: /etc/nomad.d/, owner: nomad }
   - { path: /opt/nomad/, owner: nomad }
-  notify: enable and restart nomad
 
 - name: Create consul configs
   ansible.builtin.template:
@@ -33,7 +31,7 @@
     mode: "{{ item.mode|default('0640') }}"
   loop:
   - { src: consul.hcl.j2, dest: /etc/consul.d/consul.hcl, owner: consul }
-  notify: enable and restart consul
+  notify: restart consul
 
 - name: Create nomad configs
   ansible.builtin.template:
@@ -44,7 +42,7 @@
     mode: "{{ item.mode|default('0640') }}"
   loop:
   - { src: nomad.hcl.j2, dest: /etc/nomad.d/nomad.hcl, owner: nomad }
-  notify: enable and restart nomad
+  notify: restart nomad
 
 # HASHISTACK SERVER
 
@@ -62,7 +60,7 @@
     - { src: consul-agent-ca.pem.enc, dest: /etc/consul.d/consul-agent-ca.pem, owner: consul }
     - { src: "dc1-server-consul-{{ ansible_hostname[-1] }}-key.pem.enc", dest: "/etc/consul.d/dc1-server-consul-{{ ansible_hostname[-1] }}-key.pem", owner: consul }
     - { src: "dc1-server-consul-{{ ansible_hostname[-1] }}.pem.enc", dest: "/etc/consul.d/dc1-server-consul-{{ ansible_hostname[-1] }}.pem", owner: consul }
-    notify: enable and restart consul
+    notify: restart consul
 
   - name: Copy nomad server files
     ansible.builtin.copy:
@@ -75,7 +73,7 @@
     - { src: nomad-ca.pem.enc, dest: /etc/nomad.d/nomad-ca.pem, owner: nomad }
     - { src: nomad-server.pem.enc, dest: /etc/nomad.d/nomad-server.pem, owner: nomad }
     - { src: nomad-server-key.pem.enc, dest: /etc/nomad.d/nomad-server-key.pem, owner: nomad }
-    notify: enable and restart nomad
+    notify: restart nomad
 
   when: (hashistack is defined) and (hashistack == "server")
 
@@ -93,7 +91,7 @@
       group: "{{ item.owner }}"
     loop:
     - { src: consul-agent-ca.pem.enc, dest: /etc/consul.d/consul-agent-ca.pem, owner: consul }
-    notify: enable and restart consul
+    notify: restart consul
 
   - name: Copy nomad client files
     ansible.builtin.copy:
@@ -106,7 +104,7 @@
     - { src: nomad-ca.pem.enc, dest: /etc/nomad.d/nomad-ca.pem, owner: nomad }
     - { src: nomad-client.pem.enc, dest: /etc/nomad.d/nomad-client.pem, owner: nomad }
     - { src: nomad-client-key.pem.enc, dest: /etc/nomad.d/nomad-client-key.pem, owner: nomad }
-    notify: enable and restart nomad
+    notify: restart nomad
 
   # CNI 
 
@@ -167,8 +165,8 @@
     owner: "{{ item.owner }}"
     group: "{{ item.owner }}"
   loop:
-  - { src: dc1-cli-consul-0-key.pem.enc, dest: /etc/nomad.d/dc1-cli-consul-0-key.pem, owner: nomad }
-  - { src: dc1-cli-consul-0.pem.enc, dest: /etc/nomad.d/dc1-cli-consul-0.pem, owner: nomad }
+  - { src: dc1-cli-consul-0-key.pem.enc, dest: /etc/consul.d/dc1-cli-consul-0-key.pem, owner: nomad }
+  - { src: dc1-cli-consul-0.pem.enc, dest: /etc/consul.d/dc1-cli-consul-0.pem, owner: nomad }
 
 - name: Set consul env
   ansible.builtin.copy:
@@ -195,10 +193,24 @@
   ansible.builtin.copy:
     src: consul.service
     dest: /etc/systemd/system/
-  notify: enable and restart consul
+  notify: restart consul
 
 - name: Copy nomad service
   ansible.builtin.template:
     src: nomad.service.j2
     dest: /etc/systemd/system/nomad.service
-  notify: enable and restart nomad
+  notify: restart nomad
+
+- name: Enable and start consul
+  ansible.builtin.systemd:
+    name: consul.service
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Enable and start nomad
+  ansible.builtin.systemd:
+    name: nomad.service
+    state: started
+    enabled: true
+    daemon_reload: true

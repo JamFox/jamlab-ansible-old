@@ -19,7 +19,7 @@
     tar -C /usr/local/bin/ -xzf /tmp/"${latest_url##*/}" traefik
     rm /tmp/"${latest_url##*/}"
   when: not r_traefik.stat.exists or r_traefik_ver.stdout != "latest"
-  notify: enable and restart traefik
+  notify: restart traefik
 
 - name: Create group for traefik
   ansible.builtin.group:
@@ -31,6 +31,8 @@
     name: traefik
     groups: 
       - traefik
+      - nomad
+      - consul
     state: present
 
 - name: Create traefik dir(s)
@@ -43,11 +45,19 @@
 
 - name: Copy traefik config
   ansible.builtin.copy:
-    src: traefik.toml 
-    dest: /etc/traefik/traefik.toml
+    src: traefik.yaml
+    dest: /etc/traefik/
+  notify: restart traefik
 
 - name: Copy traefik service
   ansible.builtin.copy:
     src: traefik.service
     dest: /etc/systemd/system/
-  notify: enable and restart traefik
+  notify: restart traefik
+
+- name: Enable and start traefik
+  ansible.builtin.systemd:
+    name: traefik.service
+    state: started
+    enabled: true
+    daemon_reload: true
