@@ -1,6 +1,6 @@
 # HASHISTACK ALL
 
-- name: Create hashistack dirs
+- name: Create consul dirs
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
@@ -10,13 +10,21 @@
   loop:
   - { path: /etc/consul.d/, owner: consul }
   - { path: /opt/consul/, owner: consul }
+  notify: enable and restart consul
+
+- name: Create nomad dirs
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.owner }}"
+    mode: "{{ item.mode|default('0700') }}"
+  loop:
   - { path: /etc/nomad.d/, owner: nomad }
   - { path: /opt/nomad/, owner: nomad }
-  notify: 
-    - enable and restart consul
-    - enable and restart nomad
+  notify: enable and restart nomad
 
-- name: Create hashistack configs
+- name: Create consul configs
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -25,17 +33,25 @@
     mode: "{{ item.mode|default('0640') }}"
   loop:
   - { src: consul.hcl.j2, dest: /etc/consul.d/consul.hcl, owner: consul }
+  notify: enable and restart consul
+
+- name: Create nomad configs
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.owner }}"
+    mode: "{{ item.mode|default('0640') }}"
+  loop:
   - { src: nomad.hcl.j2, dest: /etc/nomad.d/nomad.hcl, owner: nomad }
-  notify: 
-    - enable and restart consul
-    - enable and restart nomad
+  notify: enable and restart nomad
 
 # HASHISTACK SERVER
 
 - name: Configure Hashistack Server
   block:
 
-  - name: Copy hashistack server files
+  - name: Copy consul server files
     ansible.builtin.copy:
       src: "{{ item.src }}"
       dest: "{{ item.dest }}"
@@ -44,14 +60,22 @@
       group: "{{ item.owner }}"
     loop:
     - { src: consul-agent-ca.pem.enc, dest: /etc/consul.d/consul-agent-ca.pem, owner: consul }
-    - { src: dc1-server-consul-0-key.pem.enc, dest: /etc/consul.d/dc1-server-consul-0-key.pem, owner: consul }
-    - { src: dc1-server-consul-0.pem.enc, dest: /etc/consul.d/dc1-server-consul-0.pem, owner: consul }
+    - { src: "dc1-server-consul-{{ ansible_hostname[-1] }}-key.pem.enc", dest: "/etc/consul.d/dc1-server-consul-{{ ansible_hostname[-1] }}-key.pem", owner: consul }
+    - { src: "dc1-server-consul-{{ ansible_hostname[-1] }}.pem.enc", dest: "/etc/consul.d/dc1-server-consul-{{ ansible_hostname[-1] }}.pem", owner: consul }
+    notify: enable and restart consul
+
+  - name: Copy nomad server files
+    ansible.builtin.copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      mode: "{{ item.mode|default('0640') }}"
+      owner: "{{ item.owner }}"
+      group: "{{ item.owner }}"
+    loop:
     - { src: nomad-ca.pem.enc, dest: /etc/nomad.d/nomad-ca.pem, owner: nomad }
     - { src: nomad-server.pem.enc, dest: /etc/nomad.d/nomad-server.pem, owner: nomad }
     - { src: nomad-server-key.pem.enc, dest: /etc/nomad.d/nomad-server-key.pem, owner: nomad }
-    notify: 
-      - enable and restart consul
-      - enable and restart nomad
+    notify: enable and restart nomad
 
   when: (hashistack is defined) and (hashistack == "server")
 
@@ -60,7 +84,7 @@
 - name: Configure Hashistack Client
   block:
 
-  - name: Copy hashistack client files
+  - name: Copy consul client files
     ansible.builtin.copy:
       src: "{{ item.src }}"
       dest: "{{ item.dest }}"
@@ -69,12 +93,20 @@
       group: "{{ item.owner }}"
     loop:
     - { src: consul-agent-ca.pem.enc, dest: /etc/consul.d/consul-agent-ca.pem, owner: consul }
+    notify: enable and restart consul
+
+  - name: Copy nomad client files
+    ansible.builtin.copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      mode: "{{ item.mode|default('0640') }}"
+      owner: "{{ item.owner }}"
+      group: "{{ item.owner }}"
+    loop:
     - { src: nomad-ca.pem.enc, dest: /etc/nomad.d/nomad-ca.pem, owner: nomad }
     - { src: nomad-client.pem.enc, dest: /etc/nomad.d/nomad-client.pem, owner: nomad }
     - { src: nomad-client-key.pem.enc, dest: /etc/nomad.d/nomad-client-key.pem, owner: nomad }
-    notify: 
-      - enable and restart consul
-      - enable and restart nomad
+    notify: enable and restart nomad
 
   # CNI 
 
@@ -126,6 +158,25 @@
   when: (hashistack is defined) and (hashistack == "client")
 
 # HASHISTACK ALL CONTINUED
+
+- name: Set consul env
+  ansible.builtin.copy:
+    dest: /etc/profile.d/consul-env.sh
+    mode: "0644"
+    content: |
+      export CONSUL_CACERT=/etc/consul.d/consul-agent-ca.pem
+      export CONSUL_HTTP_SSL=true
+      export CONSUL_HTTP_ADDR=127.0.0.1:8501
+
+- name: Set nomad env
+  ansible.builtin.copy:
+    dest: /etc/profile.d/nomad-env.sh
+    mode: "0644"
+    content: |
+      export NOMAD_ADDR=https://127.0.0.1:4646
+      export NOMAD_CACERT=/etc/nomad.d/nomad-ca.pem
+      export NOMAD_CLIENT_CERT=/etc/nomad.d/nomad-{{ hashistack }}.pem
+      export NOMAD_CLIENT_KEY=/etc/nomad.d/nomad-{{ hashistack }}-key.pem
 
 - name: Copy consul service
   ansible.builtin.copy:
