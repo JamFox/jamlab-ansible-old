@@ -3,4 +3,4 @@
 
   roles:
 
-  - { role: traefik, tags: [ traefik ], when: not (disabled_roles.traefik | default(false)) }
+  - { role: fabio, tags: [ fabio ], when: not (disabled_roles.fabio | default(false)) }

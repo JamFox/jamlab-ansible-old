@@ -1,15 +1,42 @@
 # HASHISTACK ALL
 
+- name: Create group for hashistack
+  ansible.builtin.group:
+    name: "{{ item }}"
+    state: present
+  loop: 
+    - nomad
+    - consul
+    - consul-access
+
+- name: Create nomad user
+  ansible.builtin.user:
+    name: nomad
+    groups:
+      - nomad
+      - consul-access
+    system: true
+    state: present
+
+- name: Create consul user
+  ansible.builtin.user:
+    name: consul
+    groups:
+      - consul
+      - consul-access
+    system: true
+    state: present
+
 - name: Create consul dirs
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
     owner: "{{ item.owner }}"
-    group: "{{ item.owner }}"
+    group: "{{ item.group }}"
     mode: "{{ item.mode|default('0750') }}"
   loop:
-  - { path: /etc/consul.d/, owner: consul }
-  - { path: /opt/consul/, owner: consul }
+  - { path: /etc/consul.d/, owner: consul, group: consul-access }
+  - { path: /opt/consul/, owner: consul, group: nomad }
 
 - name: Create nomad dirs
   ansible.builtin.file:
@@ -55,9 +82,9 @@
       dest: "{{ item.dest }}"
       mode: "{{ item.mode|default('0640') }}"
       owner: "{{ item.owner }}"
-      group: "{{ item.owner }}"
+      group: "{{ item.group|default(item.owner) }}"
     loop:
-    - { src: consul-agent-ca.pem.enc, dest: /etc/consul.d/consul-agent-ca.pem, owner: consul }
+    - { src: consul-agent-ca.pem.enc, dest: /etc/consul.d/consul-agent-ca.pem, owner: consul, group: consul-access }
     - { src: "dc1-server-consul-{{ ansible_hostname[-1] }}-key.pem.enc", dest: "/etc/consul.d/dc1-server-consul-{{ ansible_hostname[-1] }}-key.pem", owner: consul }
     - { src: "dc1-server-consul-{{ ansible_hostname[-1] }}.pem.enc", dest: "/etc/consul.d/dc1-server-consul-{{ ansible_hostname[-1] }}.pem", owner: consul }
     notify: restart consul
@@ -163,10 +190,10 @@
     dest: "{{ item.dest }}"
     mode: "{{ item.mode|default('0640') }}"
     owner: "{{ item.owner }}"
-    group: "{{ item.owner }}"
+    group: "{{ item.group }}"
   loop:
-  - { src: dc1-cli-consul-0-key.pem.enc, dest: /etc/consul.d/dc1-cli-consul-0-key.pem, owner: nomad }
-  - { src: dc1-cli-consul-0.pem.enc, dest: /etc/consul.d/dc1-cli-consul-0.pem, owner: nomad }
+  - { src: dc1-cli-consul-0-key.pem.enc, dest: /etc/consul.d/dc1-cli-consul-0-key.pem, owner: consul, group: consul-access }
+  - { src: dc1-cli-consul-0.pem.enc, dest: /etc/consul.d/dc1-cli-consul-0.pem, owner: consul, group: consul-access }
 
 - name: Set consul env
   ansible.builtin.copy:

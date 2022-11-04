@@ -1,0 +1,62 @@
+- name: Check if fabio exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/fabio
+  register: r_fabio
+
+- name: Check if newer fabio exists
+  ansible.builtin.shell: |
+    latest_tag=$(curl -s https://api.github.com/repos/fabiolb/fabio/releases/latest | jq -r ".tag_name")
+    current_ver=$(/usr/local/bin/fabio -v | cut -d " " -f 1)
+    case "$current_ver" in ${latest_tag#v} ) echo "latest";; *) echo "outdated";; esac
+  register: r_fabio_ver
+  when: r_fabio.stat.exists
+
+- name: Get latest fabio
+  ansible.builtin.shell: |
+    latest_tag=$(curl -s https://api.github.com/repos/fabiolb/fabio/releases/latest | jq -r ".tag_name")
+    latest_url=https://github.com/fabiolb/fabio/releases/download/${latest_tag}/fabio-${latest_tag#v}-linux_amd64
+    wget -O /usr/local/bin/fabio $latest_url
+    chmod +x /usr/local/bin/fabio
+  when: not r_fabio.stat.exists or r_fabio_ver.stdout != "latest"
+  notify: restart fabio
+
+- name: Create group for fabio
+  ansible.builtin.group:
+    name: fabio
+    state: present
+
+- name: Create fabio user
+  ansible.builtin.user:
+    name: fabio
+    groups: 
+      - fabio
+      - consul-access
+    system: true
+    state: present
+
+- name: Create fabio dir(s)
+  ansible.builtin.file:
+    path: /etc/fabio/
+    state: directory
+    owner: fabio
+    group: fabio
+    mode: "{{ item.mode|default('0700') }}"
+
+- name: Copy fabio config
+  ansible.builtin.copy:
+    src: fabio.conf
+    dest: /etc/fabio/
+  notify: restart fabio
+
+- name: Copy fabio service
+  ansible.builtin.copy:
+    src: fabio.service
+    dest: /etc/systemd/system/
+  notify: restart fabio
+
+- name: Enable and start fabio
+  ansible.builtin.systemd:
+    name: fabio.service
+    state: started
+    enabled: true
+    daemon_reload: true

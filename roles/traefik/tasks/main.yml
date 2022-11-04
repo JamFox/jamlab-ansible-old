@@ -31,8 +31,8 @@
     name: traefik
     groups: 
       - traefik
-      - nomad
-      - consul
+      - consul-access
+    system: true
     state: present
 
 - name: Create traefik dir(s)
