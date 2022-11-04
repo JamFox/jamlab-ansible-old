@@ -23,4 +23,4 @@
 - name: Disable systemd-resolved
   ansible.builtin.systemd:
     name: systemd-resolved
-    state: disabled
+    state: stopped
