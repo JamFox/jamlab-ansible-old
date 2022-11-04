@@ -17,11 +17,13 @@ connect {
 }
 
 bind_addr = "{{ ansible_eth0.ipv4.address }}"
+client_addr = "0.0.0.0"
 
 ports {
   http = 8500
   https = 8501
   grpc = 8502
+  dns = 8600
 }
 
 addresses {
