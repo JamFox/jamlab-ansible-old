@@ -2,15 +2,3 @@ server {
   enabled = true
   bootstrap_expect = 3
 }
-
-tls {
-  http = true
-  rpc  = true
-
-  ca_file   = "/etc/nomad.d/nomad-ca.pem"
-  key_file  = "/etc/nomad.d/nomad-server-key.pem"
-  cert_file = "/etc/nomad.d/nomad-server.pem"
-
-  verify_server_hostname = true
-  verify_https_client    = true
-}
