@@ -1,0 +1,6 @@
+- name: PLAYBOOK FOR HOST 'vb0'
+  hosts: vb0
+
+  roles:
+
+  - { role: traefik, tags: [ traefik ], when: not (disabled_roles.traefik | default(false)) }

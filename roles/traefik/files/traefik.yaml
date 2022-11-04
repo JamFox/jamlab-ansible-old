@@ -14,19 +14,24 @@ api:
 
 ping: {}
 
-log:
-  filePath: "/var/log/traefik.log"
-  level: INFO
-
-accessLog:
-  filePath: "/var/log/traefik-access.log"
-
 metrics:
   prometheus:
     entryPoint: metrics
     addEntryPointsLabels: true
     addRoutersLabels: true
     addServicesLabels: true
+
+# Requires NAMECHEAP_API_USER, NAMECHEAP_API_KEY
+#certificatesResolvers:
+#  myresolver:
+#    acme:
+#      email: "acme@jamfox.dev"
+#      storage: "/etc/traefik/acme.json"
+#      # Comment out to use prod instead of staging
+#      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+#      dnsChallenge:
+#        provider: namecheap
+#        delayBeforeCheck: 0
 
 providers:
   nomad:
@@ -39,14 +44,6 @@ providers:
         ca: /etc/nomad.d/nomad-ca.pem
         cert: /etc/nomad.d/nomad-server.pem
         key: /etc/nomad.d/nomad-server-key.pem
-#  consul:
-#    endpoints:
-#      - "https://127.0.0.1:8501"
-#    rootKey: "traefik"
-#    tls:
-#      ca: /etc/consul.d/consul-agent-ca.pem
-#      cert: /etc/consul.d/dc1-cli-consul-0.pem
-#      key: /etc/consul.d/dc1-cli-consul-0-key.pem
   consulCatalog:
     refreshInterval: 30s
     prefix: traefik
