@@ -26,7 +26,7 @@ tls {
   cert_file = "/etc/nomad.d/nomad-{{ hashistack }}.pem"
 
   verify_server_hostname = true
-  verify_https_client    = false
+  verify_https_client    = true
 }
 
 consul {
