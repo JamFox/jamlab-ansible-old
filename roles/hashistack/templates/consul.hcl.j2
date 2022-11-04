@@ -17,7 +17,7 @@ connect {
 }
 
 bind_addr = "{{ ansible_eth0.ipv4.address }}"
-client_addr = "0.0.0.0"
+client_addr = "{{ ansible_eth0.ipv4.address }}"
 
 ports {
   http = 8500
