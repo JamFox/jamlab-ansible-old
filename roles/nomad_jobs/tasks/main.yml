@@ -1,0 +1,20 @@
+- name: Create nomad job dirs
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.group|default(item.owner) }}"
+    mode: "{{ item.mode|default('0750') }}"
+  loop:
+  - { path: /opt/nomad-jobs/, owner: nomad, group: nomad-access }
+
+- name: Copy nomad jobs
+  ansible.builtin.copy:
+    src: jobs/
+    dest: /opt/nomad-jobs/
+    mode: "{{ item.mode|default('0664') }}"
+    owner: nomad
+    group: nomad-access
+
+- name: Update all nomad jobs from /opt/nomad-jobs/
+  ansible.builtin.shell: find /opt/nomad-jobs/ -maxdepth 1 -name "*.nomad" -type f -exec /usr/bin/nomad job run -detach {} \;

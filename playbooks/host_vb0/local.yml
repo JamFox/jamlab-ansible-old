@@ -1,6 +1,0 @@
-- name: PLAYBOOK FOR HOST 'vb0'
-  hosts: vb0
-
-  roles:
-
-  - { role: fabio, tags: [ fabio ], when: not (disabled_roles.fabio | default(false)) }

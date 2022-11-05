@@ -1,7 +1,0 @@
-- name: PLAYBOOK FOR GROUP 'DNS'
-  hosts: dns
-
-  roles:
-
-  - { role: pre, tags: [ pre ], when: not (disabled_roles.pre | default(false)) }
-  - { role: dns, tags: [ dns ], when: not (disabled_roles.dns | default(false)) }

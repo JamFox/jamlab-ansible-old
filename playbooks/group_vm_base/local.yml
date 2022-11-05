@@ -5,3 +5,4 @@
 
   - { role: pre, tags: [ pre ], when: not (disabled_roles.pre | default(false)) }
   - { role: hashistack, tags: [ hashistack ], when: not (disabled_roles.hashistack | default(false)) }
+  - { role: nomad_jobs, tags: [ nomad_jobs ], when: not (disabled_roles.nomad_jobs | default(false)) }

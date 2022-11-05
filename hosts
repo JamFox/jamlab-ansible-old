@@ -1,7 +1,7 @@
 [pve]
 pve0
 
-[dns]
+[bastion]
 rpi0
 
 [vm_base]

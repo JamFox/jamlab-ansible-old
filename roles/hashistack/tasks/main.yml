@@ -6,6 +6,7 @@
     state: present
   loop: 
     - nomad
+    - nomad-access
     - consul
     - consul-access
 
@@ -32,29 +33,29 @@
     path: "{{ item.path }}"
     state: directory
     owner: "{{ item.owner }}"
-    group: "{{ item.group }}"
+    group: "{{ item.group|default(item.owner) }}"
     mode: "{{ item.mode|default('0750') }}"
   loop:
   - { path: /etc/consul.d/, owner: consul, group: consul-access }
-  - { path: /opt/consul/, owner: consul, group: nomad }
+  - { path: /opt/consul/, owner: consul, group: consul-access }
 
 - name: Create nomad dirs
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
     owner: "{{ item.owner }}"
-    group: "{{ item.owner }}"
+    group: "{{ item.group|default(item.owner) }}"
     mode: "{{ item.mode|default('0750') }}"
   loop:
-  - { path: /etc/nomad.d/, owner: nomad }
-  - { path: /opt/nomad/, owner: nomad }
+  - { path: /etc/nomad.d/, owner: nomad, group: nomad-access }
+  - { path: /opt/nomad/, owner: nomad, group: nomad-access }
 
 - name: Create consul configs
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     owner: "{{ item.owner }}"
-    group: "{{ item.owner }}"
+    group: "{{ item.group|default(item.owner) }}"
     mode: "{{ item.mode|default('0640') }}"
   loop:
   - { src: consul.hcl.j2, dest: /etc/consul.d/consul.hcl, owner: consul }
@@ -65,7 +66,7 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     owner: "{{ item.owner }}"
-    group: "{{ item.owner }}"
+    group: "{{ item.group|default(item.owner) }}"
     mode: "{{ item.mode|default('0640') }}"
   loop:
   - { src: nomad.hcl.j2, dest: /etc/nomad.d/nomad.hcl, owner: nomad }
