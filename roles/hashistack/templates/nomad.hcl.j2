@@ -1,6 +1,6 @@
 # Managed by jamlab-ansible
 datacenter = "dc1"
-data_dir = "/opt/nomad"
+data_dir = "{{ nomad.data_dir }}"
 
 {% if hashistack is defined %}
     {%- if hashistack == 'server' %}
@@ -21,16 +21,16 @@ tls {
   http = true
   rpc  = true
 
-  ca_file   = "/etc/nomad.d/nomad-ca.pem"
-  key_file  = "/etc/nomad.d/nomad-{{ hashistack }}-key.pem"
-  cert_file = "/etc/nomad.d/nomad-{{ hashistack }}.pem"
+  ca_file   = "{{ nomad.config_dir }}/{{ nomad.tls.ca_file }}"
+  key_file  = "{{ nomad.config_dir }}/{{ nomad.tls.key_file }}"
+  cert_file = "{{ nomad.config_dir }}/{{ nomad.tls.cert_file }}"
 
   verify_server_hostname = true
   verify_https_client    = true
 }
 
 consul {
-  address             = "127.0.0.1:8500"
+  address             = "{{ consul.local_addr }}"
   server_service_name = "nomad"
   client_service_name = "nomad-client"
   auto_advertise      = true

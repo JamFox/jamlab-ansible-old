@@ -1,7 +1,7 @@
 # Managed by jamlab-ansible
 datacenter = "dc1"
-data_dir = "/opt/consul"
-encrypt = "{{ consul_gossip_key }}"
+data_dir = "{{ consul.data_dir }}"
+encrypt = "{{ consul.gossip_key }}"
 
 {% if hashistack is defined %}
     {%- if hashistack == 'server' %}
@@ -20,10 +20,10 @@ bind_addr = "{{ ansible_eth0.ipv4.address }}"
 client_addr = "{{ ansible_eth0.ipv4.address }}"
 
 ports {
-  http = 8500
-  https = 8501
-  grpc = 8502
-  dns = 8600
+  http = {{ consul.port.http }}
+  https = {{ consul.port.https }}
+  grpc = {{ consul.port.grpc }}
+  dns = {{ consul.port.dns }}
 }
 
 addresses {
