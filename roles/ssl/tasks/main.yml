@@ -33,7 +33,7 @@
   register: r_certbot
 
 - name: Install cerbot from snap
-  ansible.builtin.shell: snap install --classic certbot; snap set certbot trust-plugin-with-root=ok
+  ansible.builtin.shell: snap install --classic certbot; snap set certbot trust-plugin-with-root=ok; snap install certbot-dns-cloudflare
   when: not r_certbot.stat.exists
 
 - name: Link certbot to /usr/bin
@@ -41,31 +41,3 @@
     src: /snap/bin/certbot
     dest: /usr/bin/certbot
     state: link
-    
-# ACME
-
-- name: Check /opt/acme.sh
-  ansible.builtin.stat:
-    path: /opt/acme.sh
-  register: r_acme
-
-- name: Clone and install acme.sh
-  ansible.builtin.shell: |
-    cd /opt/
-    git clone https://github.com/acmesh-official/acme.sh.git
-    cd acme.sh
-    ./acme.sh --install  \
-    --cert-home  /etc/ssl/certs \
-    --accountemail  "acme@jamfox.dev"
-  when: not r_acme.stat.exists
-
-- name: Check if host certs exist
-  ansible.builtin.stat:
-    path: "/etc/ssl/certs/{{ ansible_fqdn }}"
-  register: r_hostcerts
-
-- name: Issue certificate
-  ansible.builtin.shell: |
-    /root/.acme.sh/acme.sh --issue --standalone -d {{ ansible_hostname }}.jamfox.dev --log
-  when: not r_hostcerts.stat.exists
- 
