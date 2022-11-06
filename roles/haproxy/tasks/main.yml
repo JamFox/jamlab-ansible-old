@@ -9,3 +9,20 @@
     src: haproxy.cfg
     dest: /etc/haproxy/haproxy.cfg
   notify: restart haproxy
+
+- name: Configure haproxy cert renewal service
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode|default('0644') }}"
+  loop:
+  - { src: haproxy-ssl.service, dest: /etc/systemd/system/ }
+  - { src: haproxy-ssl.timer, dest: /etc/systemd/system/ }
+  - { src: haproxy-ssl.sh, dest: /etc/systemd/scripts/, mode: "0755" }
+
+- name: Enable haproxy cert renewal timer
+  ansible.builtin.systemd:
+    name: haproxy-ssl.timer
+    state: started
+    enabled: true
+    daemon_reload: true

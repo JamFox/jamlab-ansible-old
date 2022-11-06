@@ -1,0 +1,8 @@
+# Managed by jamlab-ansible
+[Unit]
+Description=Service for renewing haproxy certs
+After=network-online.target
+
+[Service]
+ExecStart=/etc/systemd/scripts/haproxy-ssl.sh
+Type=oneshot

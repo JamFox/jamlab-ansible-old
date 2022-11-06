@@ -10,14 +10,8 @@
   ansible.builtin.template:
     src: ddclient.conf.j2
     dest: /etc/ddclient.conf
-  register: r_ddclient_conf
+  notify: restart ddclient
   no_log: true
-
-- name: Restart ddclient
-  ansible.builtin.systemd:
-    name: ddclient
-    state: restarted
-  when: r_ddclient_conf.changed
 
 # CERTBOT
 
@@ -41,3 +35,20 @@
     src: /snap/bin/certbot
     dest: /usr/bin/certbot
     state: link
+
+- name: Set cloudflare certbot credentials
+  ansible.builtin.copy:
+    dest: /root/.certbot.ini
+    mode: "0600"
+    content: |
+      dns_cloudflare_api_token = {{ dns_api.token }}
+  no_log: true
+
+- name: Check if cert exists
+  ansible.builtin.stat:
+    path: /etc/letsencrypt/live/jamfox.dev/
+  register: r_letsencrypt_live
+
+- name: Get letsencrypt cert
+  ansible.builtin.shell: certbot certonly --non-interactive --agree-tos -m acme@jamfox.dev --dns-cloudflare --dns-cloudflare-credentials /root/.certbot.ini -d jamfox.dev,*.jamfox.dev --preferred-challenges dns-01
+  when: not r_letsencrypt_live.stat.exists

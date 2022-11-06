@@ -1,0 +1,10 @@
+# Managed by jamlab-ansible
+[Unit]
+Description=Timer for renewing haproxy certs
+
+[Timer]
+OnCalendar=Thu *-*-* 05:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
