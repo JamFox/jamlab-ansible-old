@@ -1,0 +1,13 @@
+- name: Install haproxy
+  ansible.builtin.apt:
+    name:
+      - haproxy
+    state: latest
+
+- name: Configure haproxy
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: /etc/haproxy/haproxy.cfg
+  loop:
+  - { src: haproxy.cfg }
+  notify: restart haproxy
