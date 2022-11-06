@@ -6,8 +6,6 @@
 
 - name: Configure haproxy
   ansible.builtin.copy:
-    src: "{{ item.src }}"
+    src: haproxy.cfg
     dest: /etc/haproxy/haproxy.cfg
-  loop:
-  - { src: haproxy.cfg }
   notify: restart haproxy

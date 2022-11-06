@@ -5,3 +5,4 @@
 
   - { role: pre, tags: [ pre ], when: not (disabled_roles.pre | default(false)) }
   - { role: dns, tags: [ dns ], when: not (disabled_roles.dns | default(false)) }
+  - { role: haproxy, tags: [ haproxy ], when: not (disabled_roles.haproxy | default(false)) }
