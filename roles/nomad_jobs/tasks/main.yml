@@ -10,11 +10,23 @@
 
 - name: Copy nomad jobs
   ansible.builtin.copy:
-    src: jobs/
+    src: "{{ item }}"
     dest: /opt/nomad-jobs/
     mode: "{{ item.mode|default('0664') }}"
     owner: nomad
     group: nomad-access
+  with_fileglob: 
+    - "*.nomad"
+
+- name: Template nomad jobs
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: /opt/nomad-jobs/{{ item | basename | regex_replace('\.j2$', '') }}
+    mode: "{{ item.mode|default('0664') }}"
+    owner: nomad
+    group: nomad-access
+  with_fileglob:
+    - ../templates/*.j2
 
 - name: Update all nomad jobs from /opt/nomad-jobs/
   ansible.builtin.shell: find /opt/nomad-jobs/ -maxdepth 1 -name "*.nomad" -type f -exec /usr/bin/nomad job run -detach {} \;

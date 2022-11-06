@@ -18,6 +18,7 @@ job "fabio" {
         network_mode = "host"
         ports = ["http","ui"]
         volumes = [
+          #{{ nomad.config_dir }}:{{ nomad.config_dir }}",
           "custom/fabio.properties:/etc/fabio/fabio.properties"
         ]
       }
@@ -25,7 +26,9 @@ job "fabio" {
       template {
         data = <<EOH
           # ref: https://github.com/fabiolb/fabio/blob/master/fabio.properties
-          proxy.addr = :80
+          proxy.addr = :80 
+          #,:443;proto=https;cs=some_name_here;tlsmin=tls12
+          #proxy.cs = cs=some_name_here;type=file;cert={{ nomad.config_dir }}/{{ nomad.tls.cert_file }};key={{ nomad.config_dir }}/{{ nomad.tls.key_file }}
           ui.access = ro
           log.access.target = stdout
           log.level = INFO
