@@ -36,7 +36,7 @@ defaults
         errorfile 504 /etc/haproxy/errors/504.http
 
 resolvers rpi-dns
-    nameserver dns1 {{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.dns }}:{{ ports. dns}}
+    nameserver dns1 {{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.dns }}:{{ ports.dns }}
     accepted_payload_size 8192
 
 frontend stats
