@@ -5,9 +5,19 @@
     state: latest
 
 - name: Configure haproxy
-  ansible.builtin.copy:
-    src: haproxy.cfg
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
     dest: /etc/haproxy/haproxy.cfg
+  notify: restart haproxy
+
+- name: Create consul configs
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode|default('0640') }}"
+  loop:
+  - { src: haproxy.cfg.j2, dest: /etc/haproxy/haproxy.cfg }
+  - { src: haproxy-ssl.sh.j2, dest: /etc/systemd/scripts/haproxy-ssl.sh, mode: "0755" }
   notify: restart haproxy
 
 - name: Configure haproxy cert renewal service
@@ -18,7 +28,6 @@
   loop:
   - { src: haproxy-ssl.service, dest: /etc/systemd/system/ }
   - { src: haproxy-ssl.timer, dest: /etc/systemd/system/ }
-  - { src: haproxy-ssl.sh, dest: /etc/systemd/scripts/, mode: "0755" }
 
 - name: Enable haproxy cert renewal timer
   ansible.builtin.systemd:

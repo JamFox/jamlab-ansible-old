@@ -46,9 +46,9 @@
 
 - name: Check if cert exists
   ansible.builtin.stat:
-    path: /etc/letsencrypt/live/jamfox.dev/
+    path: "/etc/letsencrypt/live/{{ domain.default }}/"
   register: r_letsencrypt_live
 
 - name: Get letsencrypt cert
-  ansible.builtin.shell: certbot certonly --non-interactive --agree-tos -m acme@jamfox.dev --dns-cloudflare --dns-cloudflare-credentials /root/.certbot.ini -d jamfox.dev,*.jamfox.dev --preferred-challenges dns-01
+  ansible.builtin.shell: certbot certonly --non-interactive --agree-tos -m acme@{{ domain.default }} --dns-cloudflare --dns-cloudflare-credentials /root/.certbot.ini -d {{ domain.default }},*.{{ domain.default }} --preferred-challenges dns-01
   when: not r_letsencrypt_live.stat.exists

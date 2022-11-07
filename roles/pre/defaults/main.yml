@@ -1,3 +1,34 @@
+netblock:
+      mask: 24
+      first: 
+            default: 192
+      second: 
+            default: 168
+      third: 
+            default: 0
+      fourth:
+            default: 0
+            pve: 10
+            dns: 111
+            vb: 12
+            vs: 13
+
+ports:
+      dns: 53
+      pve: 8006
+      consul:
+            http: 8500
+            https: 8501
+            grpc: 8502
+            dns: 8600
+      nomad:
+            https: 4646
+
+domain:
+      default: jamfox.dev
+      email: jamfox.dev
+      email_default_user: homelab
+
 default_shell: /bin/bash 
 admin_username: jamfox
 admin_password: !vault |
@@ -10,10 +41,6 @@ admin_password: !vault |
 
 sudo_group: sudo
 
-pve_hostname: pve0
-pve_ip: 192.168.0.100
-pve_port: 8006
-pve_api_endpoint: api2/json
 pve_api_user: root
 pve_api_pass: !vault |
       $ANSIBLE_VAULT;1.1;AES256

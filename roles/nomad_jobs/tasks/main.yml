@@ -8,16 +8,6 @@
   loop:
   - { path: /opt/nomad-jobs/, owner: nomad, group: nomad-access }
 
-- name: Copy nomad jobs
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: /opt/nomad-jobs/
-    mode: "{{ item.mode|default('0664') }}"
-    owner: nomad
-    group: nomad-access
-  with_fileglob: 
-    - "*.nomad"
-
 - name: Template nomad jobs
   ansible.builtin.template:
     src: "{{ item }}"

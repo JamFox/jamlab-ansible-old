@@ -12,11 +12,6 @@ consul:
   local_addr: 127.0.0.1:8500
   local_ssl: "false"
   api_endpoint: v1
-  port:
-    http: 8500
-    https: 8501
-    grpc: 8502
-    dns: 8600
   tls:
     ca_file: "consul-agent-ca.pem"
     cert_file: "dc1-server-consul-{{ ansible_hostname[-1] }}.pem"

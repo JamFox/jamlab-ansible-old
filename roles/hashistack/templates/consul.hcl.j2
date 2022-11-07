@@ -20,17 +20,20 @@ bind_addr = "{{ ansible_eth0.ipv4.address }}"
 client_addr = "{{ ansible_eth0.ipv4.address }}"
 
 ports {
-  http = {{ consul.port.http }}
-  https = {{ consul.port.https }}
-  grpc = {{ consul.port.grpc }}
-  dns = {{ consul.port.dns }}
+  http = {{ ports.consul.http }}
+  https = {{ ports.consul.https }}
+  grpc = {{ ports.consul.grpc }}
+  dns = {{ ports.consul.dns }}
 }
 
 addresses {
   http = "127.0.0.1"
 }
 
-retry_join = ["vb0.jamfox.dev", "vb1.jamfox.dev", "vb2.jamfox.dev"]
+retry_join = [{% for host in groups['vm_base']  %}
+"{{ host }}.{{ domain.default }}"
+{%- if not loop.last %}, {% endif %}
+{% endfor %}]
 
 acl {
   enabled = true

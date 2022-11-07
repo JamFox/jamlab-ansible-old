@@ -1,0 +1,54 @@
+# Managed by jamlab-ansible
+
+# Don't poll /etc/resolv.conf for changes
+no-poll
+# Don't read /etc/resolv.conf
+no-resolv
+# Only accept queries from local IPs
+local-service
+# Never forward queries for plain names, without dots or domain parts, to upstream nameservers
+domain-needed
+# Bogus private reverse lookups. All reverse lookups for private IP ranges (ie 192.168.x.x, etc) which are not found in /etc/hosts or the DHCP leases file are answered with "no such domain" rather than being forwarded upstream
+bogus-priv
+
+# Specify other DNS servers for queries not handled by internal DNSs
+server=8.8.8.8
+server=4.4.4.4
+
+# Queries in these domains are answered from /etc/hosts or DHCP only.
+#local=/{{ domain.default }}/
+
+# Allows DHCP hosts to have FQDN, provides the domain part for "expand-hosts"
+#domain=/{{ domain.default }}/
+
+# Increase the size of dnsmasq's cache
+cache-size=65536
+
+# Wilcard subdomain record
+address=/{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.dns }}
+
+# Host records
+## PVE records
+address=/{{ groups['bastion'][0] }}.{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.dns }}
+
+{% for host in groups['pve'] %}
+address=/{{ host }}.{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.pve }}{{ host[-1] }}
+{% endfor %}
+
+## VM base records
+{% for host in groups['vm_base'] %}
+address=/{{ host }}.{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.vb }}{{ host[-1] }}
+{% endfor %}
+
+## VM svc records
+{% for host in groups['vm_svc'] %}
+address=/{{ host }}.{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.vs }}{{ host[-1] }}
+{% endfor %}
+
+# Enable reverse DNS lookups for the netblock
+rev-server={{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.default }}/{{ netblock.mask }},127.0.0.1#{{ ports.consul.dns }}
+
+# Enable forward lookup of the 'consul' domain to consul server instances
+{% for host in groups['vm_base'] %}
+address=/consul/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.vb }}{{ host[-1] }}#{{ ports.consul.dns }}
+{% endfor %}

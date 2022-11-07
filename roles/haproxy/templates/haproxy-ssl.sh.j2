@@ -1,0 +1,7 @@
+#!/bin/bash
+# Managed by jamlab-ansible
+
+# Script to run after certbot renewal service
+
+cat /etc/letsencrypt/live/{{ domain.default }}/cert.pem /etc/letsencrypt/live/{{ domain.default }}/privkey.pem > /etc/letsencrypt/live/{{ domain.default }}/haproxy.pem
+systemctl restart haproxy

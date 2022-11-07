@@ -9,12 +9,10 @@
       - dnsmasq
     state: latest
 
-- name: Configure dnsmasq
-  ansible.builtin.copy:
+- name: Template dnsmasq configs
+  ansible.builtin.template:
     src: "{{ item.src }}"
-    dest: /etc/dnsmasq.d/
+    dest: "{{ item.dest }}"
   loop:
-  - { src: jamlab-dns.conf }
-  - { src: jamlab-records.conf }
-  - { src: jamlab-consul.conf }
+  - { src: jamlab-dns.conf.j2, dest: /etc/dnsmasq.d/jamlab-dns.conf }
   notify: restart dnsmasq

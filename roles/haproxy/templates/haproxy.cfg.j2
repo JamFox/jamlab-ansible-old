@@ -36,7 +36,7 @@ defaults
         errorfile 504 /etc/haproxy/errors/504.http
 
 resolvers rpi-dns
-    nameserver dns1 192.168.0.111:53
+    nameserver dns1 {{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.dns }}:{{ ports. dns}}
     accepted_payload_size 8192
 
 frontend stats
@@ -51,7 +51,7 @@ frontend http-in
     redirect scheme https
 
 frontend https-in
-    bind *:443 ssl crt /etc/letsencrypt/live/jamfox.dev/haproxy.pem
+    bind *:443 ssl crt /etc/letsencrypt/live/{{ domain.default }}/haproxy.pem
     default_backend nomad-lbs
 
 backend nomad-lbs
