@@ -8,6 +8,7 @@ netblock:
             default: 0
       fourth:
             default: 0
+            gateway: 1
             pve: 10
             dns: 111
             vb: 12

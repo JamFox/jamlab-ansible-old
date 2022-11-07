@@ -10,7 +10,7 @@
     dest: "{{ provision_dir }}/jamlab-terraform"
     version: main
 
-- name:
+- name: Template pve connection vars
   ansible.builtin.template:
     src: pve.hcl.j2
     dest: "{{ pve_connection_hcl_location }}"
@@ -27,8 +27,18 @@
     PACKER_LOG=1 /usr/bin/packer build -var-file "{{ pve_connection_hcl_location }}" "{{ vm_template_name }}".pkr.hcl > /var/log/vm-template-build.log 2>&1
   when: r_vm_template_exists.stdout != "true"
 
+- name: Create jamlab-ansible terraform env module dirs
+  ansible.builtin.file:
+    path: "{{ provision_dir }}/jamlab-terraform/envs/jamlab-ansible"
+    state: directory
+
+- name: Template jamlab-ansible module
+  ansible.builtin.template:
+    src: jamlab-ansible.tf.j2
+    dest: "{{ provision_dir }}/jamlab-terraform/envs/jamlab-ansible/main.tf"
+
 - name: Provision vms
   ansible.builtin.shell: |
     cd "{{ provision_dir }}"/jamlab-terraform
     terraform init
-    terraform apply -var-file "{{ pve_connection_hcl_location }}" -auto-approve > /var/log/vm-provision.log 2>&1
+    terraform apply -target=module.jamlab-ansible -var-file "{{ pve_connection_hcl_location }}" -auto-approve > /var/log/vm-provision.log 2>&1
