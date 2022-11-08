@@ -56,4 +56,4 @@ frontend https-in
 
 backend nomad-lbs
     balance roundrobin
-    server-template web 5 fabio.service.consul:80 check resolvers rpi-dns init-addr none
+    server-template web {{ groups['vm_svc'] | length }} fabio.service.consul:80 check resolvers rpi-dns init-addr none
