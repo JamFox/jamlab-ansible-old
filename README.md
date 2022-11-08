@@ -15,9 +15,7 @@ To bootstrap, follow the following steps:
 
 1. Import ansible vault key to `/root/.ansible-vault-pass`.
 
-2. Add A + DDNS records for all hosts at registrar or DNS provider. 
-
-3. To run jamlab-ansible for the first time (i.e. reinstalling or setting up hypervisor for the first time) use `bin/jamlab-bootstrap` which installs dependencies and runs `bin/jamlab-ansible` for the first time to set up the system as well as create VM template(s) using [jamlab-packer](https://github.com/JamFox/jamlab-packer) and then create VMs from that template with [jamlab-terraform](https://github.com/JamFox/jamlab-terraform).
+2. To run jamlab-ansible for the first time (i.e. reinstalling or setting up hypervisor for the first time) use `bin/jamlab-bootstrap` which installs dependencies and runs `bin/jamlab-ansible` for the first time to set up the system as well as create VM template(s) using [jamlab-packer](https://github.com/JamFox/jamlab-packer) and then create VMs from that template with [jamlab-terraform](https://github.com/JamFox/jamlab-terraform).
 
 ## Host inventory
 
