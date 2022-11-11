@@ -4,3 +4,4 @@
   roles:
 
   - { role: pre, tags: [ pre ], when: not (disabled_roles.pre | default(false)) }
+  - { role: vm, tags: [ vm ], when: not (disabled_roles.vm | default(false)) }

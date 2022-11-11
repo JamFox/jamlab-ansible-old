@@ -1,0 +1,12 @@
+- name: Check if disk is max size
+  ansible.builtin.shell: |
+    vgs --units b --no-suffix --noheadings -o vg_free | tr -d ' '
+  register: r_vgs_free
+
+- name: Extend disk to max available
+  ansible.builtin.shell: |
+    growpart /dev/sda 2
+    pvresize /dev/sda5
+    lvextend -l +100%FREE /dev/debian-vg/root
+    resize2fs /dev/debian-vg/root
+  when: r_vgs_free.stdout != "0"
