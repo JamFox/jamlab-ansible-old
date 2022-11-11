@@ -74,7 +74,7 @@ backend fabio-hosts
 backend nomad-hosts
     balance leastconn
     cookie SERVER insert indirect nocache dynamic
-    dynamic-cookie-key {{ dynamic-cookie-key }}
+    dynamic-cookie-key {{ dynamic_cookie_key }}
     server-template nomad {{ groups['vm_base'] | length }} nomad.service.consul:4646 ssl verify none check resolvers rpi-dns init-addr libc,none
     server-template nomad-client {{ groups['vm_svc'] | length }} nomad-client.service.consul:4646 ssl verify none check resolvers rpi-dns init-addr libc,none
 
