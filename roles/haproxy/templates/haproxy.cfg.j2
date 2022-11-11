@@ -62,8 +62,9 @@ frontend https-in
 
 backend pve-hosts
     balance leastconn
+    cookie SERVER insert indirect nocache
 {% for host in groups['pve'] %}
-    server {{ host }} {{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.pve }}{{ host[-1] }}:{{ ports.pve }} check
+    server {{ host }} {{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.pve }}{{ host[-1] }}:{{ ports.pve }} check cookie {{ host }}
 {% endfor %}
 
 backend fabio-hosts
@@ -72,8 +73,10 @@ backend fabio-hosts
 
 backend nomad-hosts
     balance leastconn
-    server-template nomad {{ groups['vm_base'] | length }} nomad.service.consul:4646 ssl verify none check resolvers rpi-dns init-addr none
-    server-template nomad-client {{ groups['vm_svc'] | length }} nomad-client.service.consul:4646 ssl verify none check resolvers rpi-dns init-addr none
+    cookie SERVER insert indirect nocache dynamic
+    dynamic-cookie-key {{ lookup('password', '/dev/null length=16 chars=ascii_letters,digits') }}
+    server-template nomad {{ groups['vm_base'] | length }} nomad.service.consul:4646 ssl verify none check resolvers rpi-dns init-addr libc,none
+    server-template nomad-client {{ groups['vm_svc'] | length }} nomad-client.service.consul:4646 ssl verify none check resolvers rpi-dns init-addr libc,none
 
 backend nomad-lbs
     balance roundrobin
