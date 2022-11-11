@@ -79,6 +79,7 @@ fi
 # Pull latest if argument set
 if [[ $refresh == true ]]
 then
+    cd $ansible_path
     git pull
     if [ $? -ne 0 ]; then
         echo -e "[ ${COLOR_YELLOW_BOLD}WARNING${COLOR_RESET} ] Unable to pull latest branch $branch at $ANSIBLE_REPO_URL"
