@@ -52,6 +52,12 @@ frontend http-in
 
 frontend https-in
     bind *:443 ssl crt /etc/letsencrypt/live/{{ domain.default }}/haproxy.pem
+    acl pve hdr(host) -i pve.jamfox.dev
+    use_backend pve-hosts if pve
+    acl fabio hdr(host) -i fabio.jamfox.dev
+    use_backend fabio-hosts if fabio
+    acl nomad hdr(host) -i nomad.jamfox.dev
+    use_backend nomad-hosts if nomad
     default_backend nomad-lbs
 
 backend pve-hosts

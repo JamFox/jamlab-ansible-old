@@ -42,35 +42,3 @@
     cd "{{ provision_dir }}"/jamlab-terraform
     terraform init
     terraform apply -target=module.jamlab-ansible -var-file "{{ pve_connection_hcl_location }}" -auto-approve > /var/log/vm-provision.log 2>&1
-
-
-frontend http-in
-    bind *:80
-    redirect scheme https
-
-frontend https-in
-    bind *:443 ssl crt /etc/letsencrypt/live/jamfox.dev/haproxy.pem
-    acl pve hdr(host) -i pve.jamfox.dev
-    use_backend pve-hosts if pve
-    acl fabio hdr(host) -i fabio.jamfox.dev
-    use_backend fabio-hosts if fabio
-    acl nomad hdr(host) -i nomad.jamfox.dev
-    use_backend nomad-hosts if nomad
-    default_backend nomad-lbs
-
-backend pve-hosts
-    balance leastconn
-    server pve0 192.168.0.100:8006 check
-
-backend fabio-hosts
-    balance leastconn
-    server-template fabio 3 fabio.service.consul:9998 check resolvers rpi-dns init-addr none
-
-backend nomad-hosts
-    balance leastconn
-    server-template nomad 3 nomad.service.consul:4646 ssl verify none check resolvers rpi-dns init-addr none
-    server-template nomad-client 3 nomad-client.service.consul:4646 ssl verify none check resolvers rpi-dns init-addr none
-
-backend nomad-lbs
-    balance leastconn
-    server-template nomad-lb 3 fabio.service.consul:80 check resolvers rpi-dns init-addr none
