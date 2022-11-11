@@ -50,5 +50,5 @@ rev-server={{ netblock.first.default }}.{{ netblock.second.default }}.{{ netbloc
 
 # Enable forward lookup of the 'consul' domain to consul server instances
 {% for host in groups['vm_base'] %}
-address=/consul/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.vb }}{{ host[-1] }}#{{ ports.consul.dns }}
+server=/consul/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.vb }}{{ host[-1] }}#{{ ports.consul.dns }}
 {% endfor %}
