@@ -47,7 +47,7 @@ EOH
 global:
   scrape_interval:     5s
   evaluation_interval: 5s
-
+{% raw %}
 alerting:
   alertmanagers:
   - consul_sd_configs:
@@ -89,6 +89,7 @@ scrape_configs:
 
     metrics_path: /metrics
 EOH
+{% endraw %}
       }
       driver = "docker"
       config {

@@ -18,7 +18,7 @@ job "fabio" {
         network_mode = "host"
         ports = ["http","ui"]
         volumes = [
-          #{{ nomad.config_dir }}:{{ nomad.config_dir }}",
+          #"{{ nomad.config_dir }}:{{ nomad.config_dir }}",
           "custom/fabio.properties:/etc/fabio/fabio.properties"
         ]
       }
