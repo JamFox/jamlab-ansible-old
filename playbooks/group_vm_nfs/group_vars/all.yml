@@ -1,0 +1,22 @@
+extra_pkgs:
+  - docker-ce 
+  - docker-ce-cli 
+  - containerd.io 
+  - docker-compose-plugin
+  - terraform
+  - packer
+  - vault
+  - consul
+  - nomad
+
+extra_sources: 
+  - key_url: https://apt.releases.hashicorp.com/gpg
+    key_dest: /usr/share/keyrings/hashicorp-archive-keyring.asc
+    dist: deb
+    repo_url: https://apt.releases.hashicorp.com
+    repo_name: main
+  - key_url: https://download.docker.com/linux/debian/gpg
+    key_dest: /usr/share/keyrings/docker.asc
+    dist: deb
+    repo_url: https://download.docker.com/linux/debian
+    repo_name: stable

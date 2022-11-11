@@ -1,0 +1,6 @@
+- name: PLAYBOOK FOR GROUP 'NFS'
+  hosts: nfs
+
+  roles:
+
+  - { role: pre, tags: [ pre ], when: not (disabled_roles.pre | default(false)) }
