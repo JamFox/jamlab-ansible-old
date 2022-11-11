@@ -71,6 +71,15 @@ variable "vms" {
  }
 }
 
+resource "tls_private_key" "bootstrap_private_key" {
+  algorithm = "RSA"
+}
+resource "local_file" "temp-private-key" {
+  sensitive_content = tls_private_key.bootstrap_private_key.private_key_pem
+  filename = "${path.module}/private_key.pem"
+  file_permission = "0600"
+}
+
 # BASE AND SVC PROVISION MODULE
 
 module "vm" {
@@ -103,15 +112,6 @@ module "vm" {
   default_image_password = local.default_image_password
   private_key = local.default_ssh_prvkey
   ssh_public_keys = local.default_ssh_pubkey
-}
-
-resource "tls_private_key" "bootstrap_private_key" {
-  algorithm = "RSA"
-}
-resource "local_file" "temp-private-key" {
-  sensitive_content = tls_private_key.bootstrap_private_key.private_key_pem
-  filename = "${path.module}/private_key.pem"
-  file_permission = "0600"
 }
 
 # NFS PROVISION MODULE
@@ -153,13 +153,4 @@ module "nfs" {
   default_image_password = local.default_image_password
   private_key = local.default_ssh_prvkey
   ssh_public_keys = local.default_ssh_pubkey
-}
-
-resource "tls_private_key" "bootstrap_private_key" {
-  algorithm = "RSA"
-}
-resource "local_file" "temp-private-key" {
-  sensitive_content = tls_private_key.bootstrap_private_key.private_key_pem
-  filename = "${path.module}/private_key.pem"
-  file_permission = "0600"
 }

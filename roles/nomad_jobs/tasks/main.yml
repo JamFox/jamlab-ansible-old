@@ -29,3 +29,4 @@
     method: PUT
     body: "<html><body><h1>Fabio: No route found for this request!</h1></body></html>"
     status_code: 200
+  ignore_errors: true
