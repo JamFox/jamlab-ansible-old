@@ -33,6 +33,13 @@
 
   when: not r_journal.stat.exists
 
+- name: Set journald configuration
+  ansible.builtin.blockinfile:
+    path: /etc/systemd/journald.conf
+    block: |
+      SystemMaxUse=500M
+    marker: "# {mark} Managed by jamlab-ansible"
+
 - name: Get current hostname
   ansible.builtin.command: hostnamectl --static
   register: r_hostname
