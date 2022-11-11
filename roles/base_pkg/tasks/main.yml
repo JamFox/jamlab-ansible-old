@@ -11,7 +11,7 @@
     state: latest
 
 - name: Install and refresh snap core
-  ansible.builtin.shell: snap install core; snap refresh core
+  ansible.builtin.shell: snap install core; snap refresh core; snap set system refresh.retain=2
 
 - name: Install base packages
   ansible.builtin.apt:
