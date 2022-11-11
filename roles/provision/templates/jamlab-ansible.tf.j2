@@ -71,7 +71,6 @@ variable "vms" {
  }
 }
 
-
 module "vm" {
   for_each = var.vms
   source = "../../modules/pve-vm" 
@@ -95,6 +94,54 @@ module "vm" {
   ip_address = "${each.value.ip}"
 
   vm_disk = local.vm_disk 
+
+  agent = local.qemu_agent_enabled
+  
+  default_image_username = local.default_image_username
+  default_image_password = local.default_image_password
+  private_key = local.default_ssh_prvkey
+  ssh_public_keys = local.default_ssh_pubkey
+}
+
+resource "tls_private_key" "bootstrap_private_key" {
+  algorithm = "RSA"
+}
+resource "local_file" "temp-private-key" {
+  sensitive_content = tls_private_key.bootstrap_private_key.private_key_pem
+  filename = "${path.module}/private_key.pem"
+  file_permission = "0600"
+}
+
+module "nfs" {
+  source = "../../modules/pve-vm" 
+
+  target_node = local.default_target_node
+  clone = local.default_clone
+  vm_name = "nfs0"
+  desc = local.desc
+
+  sockets = local.default_vm_sockets
+  cores = local.default_vm_cores
+  memory = local.default_vm_memory
+
+  onboot = local.onboot
+  full_clone = local.full_clone
+
+  nameserver = local.nameserver
+  vm_network = local.vm_network
+  searchdomain = local.searchdomain
+  ipconfig0 = "ip={{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.140${local.cidr},gw=${local.gateway}"
+  ip_address = "{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.140"
+
+  vm_disk = [
+    {
+      type    = "scsi"
+      storage = "local-lvm"
+      size    = "1000G"
+      format  = "raw"
+      ssd     = 0
+    },         
+  ]   
 
   agent = local.qemu_agent_enabled
   
