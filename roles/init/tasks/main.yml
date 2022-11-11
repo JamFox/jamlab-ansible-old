@@ -1,16 +1,15 @@
-# SYSTEM
+# HOSTNAME
 
-- name: Create setup dir
-  ansible.builtin.file:
-    path: /opt/jamlab-setup
-    state: directory
-    mode: "0700"
+- name: Get current hostname
+  ansible.builtin.command: hostnamectl --static
+  register: r_hostname
+  changed_when: false
 
-- name: Configure latest jamlab-ansible-update
-  ansible.builtin.copy:
-    src: jamlab-ansible-update
-    dest: /usr/local/sbin/
-    mode: "0755"
+- name: Set hostname
+  ansible.builtin.shell: "/usr/bin/hostnamectl set-hostname {{ ansible_hostname }}.{{ domain.default }}"
+  when: r_hostname.stdout != ansible_hostname + "." + domain.default
+
+# JOURNAL 
 
 - name: Check whether systemd-journald is persistent
   ansible.builtin.stat:
@@ -40,14 +39,19 @@
       SystemMaxUse=500M
     marker: "# {mark} Managed by jamlab-ansible"
 
-- name: Get current hostname
-  ansible.builtin.command: hostnamectl --static
-  register: r_hostname
-  changed_when: false
+# ANSIBLE MANAGEMENT
 
-- name: Set hostname
-  ansible.builtin.shell: "/usr/bin/hostnamectl set-hostname {{ ansible_fqdn }}"
-  when: r_hostname.stdout != ansible_fqdn
+- name: Create setup dir
+  ansible.builtin.file:
+    path: /opt/jamlab-setup
+    state: directory
+    mode: "0700"
+
+- name: Configure latest jamlab-ansible-update
+  ansible.builtin.copy:
+    src: jamlab-ansible-update
+    dest: /usr/local/sbin/
+    mode: "0755"
 
 - name: Configure daily ansible execution
   ansible.builtin.copy:
