@@ -32,4 +32,22 @@
       - file
       - gpg
       - sudo
+      - unattended-upgrades
     state: latest
+
+- name: Set unattended security patches
+  ansible.builtin.blockinfile:
+    path: /etc/apt/apt.conf.d/50unattended-upgrades
+    block: |
+      Unattended-Upgrade::Mail "unattended-upgrade@jamfox.dev";
+      Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+      Unattended-Upgrade::Remove-Unused-Dependencies "true";
+      Unattended-Upgrade::Remove-New-Unused-Dependencies "true";
+      Unattended-Upgrade::Automatic-Reboot "false";
+      Unattended-Upgrade::Automatic-Reboot-Time "04:00";
+    marker: "# {mark} BLOCK Managed by jamlab-ansible"
+
+- name: restart unattended-upgrades service
+  ansible.builtin.systemd:
+    name: unattended-upgrades.service
+    state: restarted
