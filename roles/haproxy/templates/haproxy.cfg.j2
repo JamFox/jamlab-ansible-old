@@ -54,6 +54,21 @@ frontend https-in
     bind *:443 ssl crt /etc/letsencrypt/live/{{ domain.default }}/haproxy.pem
     default_backend nomad-lbs
 
+backend pve-hosts
+    balance leastconn
+{% for host in groups['pve'] %}
+    server {{ host }} {{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.pve }}{{ host[-1] }}:{{ ports.pve }} check
+{% endfor %}
+
+backend fabio-hosts
+    balance leastconn
+    server-template fabio {{ groups['vm_svc'] | length }} fabio.service.consul:9998 check resolvers rpi-dns init-addr none
+
+backend nomad-hosts
+    balance leastconn
+    server-template nomad {{ groups['vm_base'] | length }} nomad.service.consul:4646 ssl verify none check resolvers rpi-dns init-addr none
+    server-template nomad-client {{ groups['vm_svc'] | length }} nomad-client.service.consul:4646 ssl verify none check resolvers rpi-dns init-addr none
+
 backend nomad-lbs
     balance roundrobin
     server-template web {{ groups['vm_svc'] | length }} fabio.service.consul:80 check resolvers rpi-dns init-addr none
