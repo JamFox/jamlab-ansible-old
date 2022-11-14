@@ -50,13 +50,6 @@
       path: "{{ nfs.shared.mount }}"
       state: directory
 
-#  - name: Mount nfs in stab
-#    ansible.builtin.blockinfile:
-#      path: /etc/fstab
-#      block: |
-#        {{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.nfs }}{{ groups['nfs'][0][-1] }}:{{ nfs.shared.export }}   {{ nfs.shared.mount }}   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
-#      marker: "# {mark} Managed by jamlab-ansible"
-    
   - name: Mount nfs
     ansible.posix.mount:
       src: "{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.nfs }}{{ groups['nfs'][0][-1] }}:{{ nfs.shared.export }}"
