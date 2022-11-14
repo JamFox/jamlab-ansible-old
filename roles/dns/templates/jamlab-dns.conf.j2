@@ -28,19 +28,25 @@ cache-size=65536
 address=/{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.dns }}
 
 # Host records
-## PVE records
+## Bastion
 address=/{{ groups['bastion'][0] }}.{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.dns }}
 
+## DNS
+{% for host in groups['dns'] %}
+address=/{{ host }}.{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.dns }}{{ host[-1] }}
+{% endfor %}
+
+## PVE
 {% for host in groups['pve'] %}
 address=/{{ host }}.{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.pve }}{{ host[-1] }}
 {% endfor %}
 
-## VM base records
+## VM base
 {% for host in groups['vm_base'] %}
 address=/{{ host }}.{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.vb }}{{ host[-1] }}
 {% endfor %}
 
-## VM svc records
+## VM svc
 {% for host in groups['vm_svc'] %}
 address=/{{ host }}.{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.vs }}{{ host[-1] }}
 {% endfor %}
