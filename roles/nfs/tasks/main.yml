@@ -39,7 +39,7 @@
 - name: Configure NFS Client
   block:
 
-  - name: Install dns packages
+  - name: Install nfs packages
     ansible.builtin.apt:
       name:
         - nfs-common
