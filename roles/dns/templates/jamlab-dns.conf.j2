@@ -31,9 +31,9 @@ address=/{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.de
 ## Bastion
 address=/{{ groups['bastion'][0] }}.{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.dns }}
 
-## DNS
-{% for host in groups['dns'] %}
-address=/{{ host }}.{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.dns }}{{ host[-1] }}
+## NFS
+{% for host in groups['nfs'] %}
+address=/{{ host }}.{{ domain.default }}/{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.nfs }}{{ host[-1] }}
 {% endfor %}
 
 ## PVE
