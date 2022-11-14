@@ -1,0 +1,68 @@
+# SERVER
+
+- name: Configure NFS Server
+  block:
+
+  - name: Install nfs packages
+    ansible.builtin.apt:
+      name:
+        - nfs-kernel-server 
+        - rpcbind
+      state: latest
+
+  - name: Create shared nfs directory
+    ansible.builtin.file:
+      path: "{{ nfs.shared.export }}"
+      state: directory
+      owner: nobody
+      group: nogroup
+    notify: restart nfs
+
+  - name: Configure nfs exports
+    ansible.builtin.blockinfile:
+      path: /etc/exports
+      block: |
+        {{ nfs.shared.export }} {{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.default }}/{{ netblock.mask }}(rw,sync,no_root_squash,subtree_check)
+      marker: "# {mark} Managed by jamlab-ansible"
+    notify: restart nfs
+
+  - name: Enable and start consul
+    ansible.builtin.systemd:
+      name: nfs-server.service
+      state: started
+      enabled: true
+
+  when: "'nfs' in group_names"
+
+# CLIENT 
+
+- name: Configure NFS Client
+  block:
+
+  - name: Install dns packages
+    ansible.builtin.apt:
+      name:
+        - nfs-common
+      state: latest
+
+  - name: Create shared nfs directory
+    ansible.builtin.file:
+      path: "{{ nfs.shared.mount }}"
+      state: directory
+
+#  - name: Mount nfs in stab
+#    ansible.builtin.blockinfile:
+#      path: /etc/fstab
+#      block: |
+#        {{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.nfs }}{{ groups['nfs'][0][-1] }}:{{ nfs.shared.export }}   {{ nfs.shared.mount }}   nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
+#      marker: "# {mark} Managed by jamlab-ansible"
+    
+  - name: Mount nfs
+    ansible.posix.mount:
+      src: "{{ netblock.first.default }}.{{ netblock.second.default }}.{{ netblock.third.default }}.{{ netblock.fourth.nfs }}{{ groups['nfs'][0][-1] }}:{{ nfs.shared.export }}"
+      path: "{{ nfs.shared.mount }}"
+      opts: auto,nofail,noatime,nolock,intr,tcp,actimeo=1800
+      state: mounted
+      fstype: nfs
+
+  when: "'nfs' not in group_names"
