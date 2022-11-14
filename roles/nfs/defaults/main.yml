@@ -1,0 +1,4 @@
+nfs:
+  shared:
+    export: /mnt/shared
+    mount: /nfs/shared
