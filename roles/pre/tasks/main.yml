@@ -1,18 +1,18 @@
 # 'pre' is used to call all prerequisite roles on all machines
-- name: Include nfs role
-  ansible.builtin.include_role:
-    name: nfs
-    apply:
-      tags: [ nfs ]
-  when: not disabled_roles.nfs | default(false)
-  tags: always
-
 - name: Include init role
   ansible.builtin.include_role:
     name: init
     apply:
       tags: [ init ]
   when: not disabled_roles.init | default(false)
+  tags: always
+
+- name: Include nfs role
+  ansible.builtin.include_role:
+    name: nfs
+    apply:
+      tags: [ nfs ]
+  when: not disabled_roles.nfs | default(false)
   tags: always
 
 - name: Include base_pkg role
