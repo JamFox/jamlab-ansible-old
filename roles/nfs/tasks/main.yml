@@ -26,7 +26,7 @@
       marker: "# {mark} Managed by jamlab-ansible"
     notify: restart nfs
 
-  - name: Enable and start consul
+  - name: Enable and start nfs-server
     ansible.builtin.systemd:
       name: nfs-server.service
       state: started
