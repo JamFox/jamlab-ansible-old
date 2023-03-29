@@ -144,6 +144,23 @@ function largestfiles() {
     du -h -x -s -- * | sort -r -h | head -20;
 }
 
+function dirinfo() {
+  if [ -z "$1" ]; then
+    echo "Usage: dir_info <directory_path>"
+    return 1
+  fi
+
+  dir_path="$1"
+
+  for dir in "$dir_path"/*/
+  do
+    dir=${dir%*/}
+    echo "Directory: $dir"
+    echo "    Total number of files:  $(find "$dir" -type f | wc -l)"
+    echo "    Total size of contents: $(du -h -s "$dir" | cut -f1)"
+  done
+}
+
 function git_branch() {
     if [ -d .git ] ; then
         printf "%s" "($(git branch 2> /dev/null | awk '/\*/{print $2}'))";
