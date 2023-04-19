@@ -140,6 +140,9 @@ alias mountedinfo='df -hT'
 # Show all logs in /var/log
 alias logs="sudo find /var/log -type f -exec file {} \; | grep 'text' | cut -d' ' -f1 | sed -e's/:$//g' | grep -v '[0-9]$' | xargs tail -f"
 
+# Fix SSH permissions
+alias fssh="find .ssh/ -type f -exec chmod 600 {} \;; find .ssh/ -type d -exec chmod 700 {} \;; find .ssh/ -type f -name '*.pub' -exec chmod 644 {} \;"
+
 function largestfiles() {
     du -h -x -s -- * | sort -r -h | head -20;
 }
