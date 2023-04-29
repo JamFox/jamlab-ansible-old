@@ -143,10 +143,57 @@ alias logs="sudo find /var/log -type f -exec file {} \; | grep 'text' | cut -d' 
 # Fix SSH permissions
 alias fssh="find .ssh/ -type f -exec chmod 600 {} \;; find .ssh/ -type d -exec chmod 700 {} \;; find .ssh/ -type f -name '*.pub' -exec chmod 644 {} \;"
 
+# Check if a port is available
+portcheck() {
+  if [ -z "$1" ]
+  then
+    echo "ERROR: specify port number."
+  else
+    re='^[0-9]+$'
+    if ! [[ $1 =~ $re ]] ; then
+      echo "ERROR: argument must be a port number."
+    else
+      lsof -n "-i4TCP:$1" | grep LISTEN
+    fi
+  fi
+}
+
+# Check all listening ports
+listen() {
+  netstat -an | grep LISTEN | sort
+}
+
+# first_line [file]
+first_line() {
+  head -n 1
+}
+
+# last_line [file]
+last_line() {
+  tail -n 1
+}
+
+# lines [from] [to] - for piping only
+line() {
+  lines "$1" "$1"
+}
+
+# line [number] - for piping only
+lines() {
+  head -n "$2" | tail -n "+$1"
+}
+
+# numbers - for piping only
+numbers() {
+  cat -n -
+}
+
+# Display largest files
 function largestfiles() {
     du -h -x -s -- * | sort -r -h | head -20;
 }
 
+# Display num of files and size of contents in dir
 function dirinfo() {
   if [ -z "$1" ]; then
     echo "Usage: dir_info <directory_path>"
@@ -170,6 +217,7 @@ function git_branch() {
     fi
 }
 
+# Search history
 function hg() {
     history | grep "$1";
 }
@@ -211,7 +259,7 @@ extract () {
 	done
 }
 
-# Searches for text in all files in the current folder
+# Searches for text in all files in the current dir
 ftext ()
 {
 	# -i case-insensitive
