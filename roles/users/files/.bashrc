@@ -70,7 +70,7 @@ alias ldir="ls -l | egrep '^d'" # directories only
 alias ls='ls --color=auto'
 alias sl='ls --color=auto'
 alias ll='ls -la'
-alias l='ls -la'
+alias l='ls -Av1h --color=always --time-style=long-iso --group-directories-first'
 alias lart='ls -lart'
 
 # alias chmod commands
