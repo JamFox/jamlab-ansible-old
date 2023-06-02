@@ -23,15 +23,15 @@
 
 # ROOT
 
-- name: Copy defaults for root user
-  ansible.builtin.copy:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-  loop:
-  - { src: .bashrc, dest: /root/.bashrc}
-  - { src: .bash_profile, dest: /root/.bash_profile }
-  - { src: .gitconfig, dest: /root/.gitconfig }
-  - { src: .tmux.conf, dest: /root/.tmux.conf }
+#- name: Copy defaults for root user
+#  ansible.builtin.copy:
+#    src: "{{ item.src }}"
+#    dest: "{{ item.dest }}"
+#  loop:
+#  - { src: .bashrc, dest: /root/.bashrc}
+#  - { src: .bash_profile, dest: /root/.bash_profile }
+#  - { src: .gitconfig, dest: /root/.gitconfig }
+#  - { src: .tmux.conf, dest: /root/.tmux.conf }
 
 - name: Check for pgp key
   ansible.builtin.stat:
@@ -124,24 +124,24 @@
       group: "{{ admin_username }}"
       recurse: yes
 
-  - name: Copy .bash_profile for admin user(s)
-    ansible.builtin.copy:
-      src: .bash_profile
-      dest: "/home/{{ admin_username }}/.bash_profile"
-
-  - name: Copy .bashrc for admin user(s)
-    ansible.builtin.copy:
-      src: .bashrc
-      dest: "/home/{{ admin_username }}/.bashrc"
-
-  - name: Copy .gitconfig for admin user(s)
-    ansible.builtin.copy:
-      src: .gitconfig
-      dest: "/home/{{ admin_username }}/.gitconfig"
-
-  - name: Copy .tmux.conf for admin user(s)
-    ansible.builtin.copy:
-      src: .tmux.conf
-      dest: "/home/{{ admin_username }}/.tmux.conf"
+#  - name: Copy .bash_profile for admin user(s)
+#    ansible.builtin.copy:
+#      src: .bash_profile
+#      dest: "/home/{{ admin_username }}/.bash_profile"
+#
+#  - name: Copy .bashrc for admin user(s)
+#    ansible.builtin.copy:
+#      src: .bashrc
+#      dest: "/home/{{ admin_username }}/.bashrc"
+#
+#  - name: Copy .gitconfig for admin user(s)
+#    ansible.builtin.copy:
+#      src: .gitconfig
+#      dest: "/home/{{ admin_username }}/.gitconfig"
+#
+#  - name: Copy .tmux.conf for admin user(s)
+#    ansible.builtin.copy:
+#      src: .tmux.conf
+#      dest: "/home/{{ admin_username }}/.tmux.conf"
 
   when: (admin_username is defined) and (admin_password is defined)
